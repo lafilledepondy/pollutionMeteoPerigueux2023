@@ -1,0 +1,28 @@
+git commands:
+1. From the project respo 
+2. `git pull origin main`
+3. ..work locally..
+4. git add <file_name>
+NB: replace the <file_name> by the exact name of the file
+5. git commit -m "your_message" 
+NB: replace "your_message" by "blabla" 
+6. git push 
+
+_______________________________________________________________
+
+[] Intro	
+   [] Cleaning up the data (NA)
+   [] Calculs vite fait
+   [] Objectif (Hypo, Problématique)
+
+[] Univarié
+
+[] Bivarié
+
+[] Conclusion 
+
+
+
+1. Vent 
+2. Pluit
+3. 
