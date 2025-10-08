@@ -1,29 +1,85 @@
 ---
-title: "Projet"
-output: html_document
-date: "2025-10-08"
+title: "Projet de datavisualisation"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+  number_sections: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(width = 100, scipen = 999) 
+
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+# library(kableExtra)
+# library(plotly)
+# library(gridExtra)
+# library(DT)
 ```
 
-## R Markdown
+# Projet de datavisualisation
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Imporatation de jeu de données
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+data <- read_excel("atmo_polluants_Périgueux.xlsx", sheet = 2)
+head(data)
 ```
 
-## Including Plots
+## Introduction
 
-You can also embed plots, for example:
+### Description des données
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+nLigne <- nrow(data)
+print(nLigne)
+
+pColonne <- ncol(data)
+print(pColonne)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+!!!!!!!!!!!!!!!!!!!!!!!! 26 colones????? ou 27?????
+
+Le jeu de données contient 8 696 lignes (\~362 jours \* 24 heures) et 27 colonnes. Chaque ligne représente une heure de mesure pour une station de mesure. Chaque colonne représente une variable mesurée ou une information sur la mesure (date, pression, polluant, etc.).
+
+```{r}
+str(data)
+```
+
+Le jeu de données contient des variables de différents types : - numériques (double), - catégorielles (chr) et - des dates (date).
+
+### Cleaning des données
+
+On regarde d'abord si il y a des valeurs manquantes dans le jeu de données.
+
+```{r}
+data$PM2.5 == NA
+```
+
+On voit que la colonne 'PM2.5' contient beaucoup de valeurs manquantes (NA). Nous allons donc pas l'inclure dans notre analyse.
+
+```{r}
+data <- data %>% select(-PM2.5)
+head(data)
+
+# mettons à jour le pColonne
+pColonne <- ncol(data)
+```
+
+### Objectif de l'analyse
+
+## Univariée
+
+```{r}
+
+```
+
+## Bivariée
+
+## Conclusion
