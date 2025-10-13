@@ -83,6 +83,7 @@ pColonne <- ncol(data)
 ```
 
 ### Choix des variables
+
 ```{r}
 ```
 
@@ -96,7 +97,4 @@ pColonne <- ncol(data)
 
 ## Bivariée
 
-
 ## Conclusion
-
-
