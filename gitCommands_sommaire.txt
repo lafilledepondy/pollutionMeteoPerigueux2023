@@ -9,6 +9,10 @@ NB: replace "your_message" by "blabla"
 6. git push 
 
 _______________________________________________________________
+data -> tableau avec les variables qu'on utilise
+data_raw -> tableau avec toutes les variables
+
+_______________________________________________________________
 
 [] Intro	
    [] Cleaning up the data (NA)

@@ -1,5 +1,5 @@
 ---
-title: "Projet de datavisualisation"
+title: "Projet de data_rawvisualisation"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
@@ -23,13 +23,13 @@ library(corrplot)
 # library(DT)
 ```
 
-# Projet de datavisualisation
+# Projet de data_rawvisualisation
 
 ## Imporatation de jeu de données
 
 ```{r}
-data <- read_excel("atmo_polluants_Périgueux.xlsx", sheet = 2)
-head(data)
+data_raw <- read_excel("atmo_polluants_Périgueux.xlsx", sheet = 2)
+head(data_raw)
 ```
 
 ## Introduction
@@ -37,10 +37,10 @@ head(data)
 ### Description des données
 
 ```{r}
-nLigne <- nrow(data)
+nLigne <- nrow(data_raw)
 print(nLigne)
 
-pColonne <- ncol(data)
+pColonne <- ncol(data_raw)
 print(pColonne)
 ```
 
@@ -50,16 +50,16 @@ La date est une unité statistique, les variables statistiques sont les autres c
 
 ```{r}
 cat("Date début\n")
-cat(format(data$date_debut[1], "%Y-%m-%d %H:%M:%S"), "\n")
+cat(format(data_raw$date_debut[1], "%Y-%m-%d %H:%M:%S"), "\n")
 
 cat("Date fin\n")
-cat(format(data$date_debut[nLigne], "%Y-%m-%d %H:%M:%S"), "\n")
+cat(format(data_raw$date_debut[nLigne], "%Y-%m-%d %H:%M:%S"), "\n")
 ```
 
 La période de mesure s'étend du 08/11/2023 de 00:00h au 07/11/2024 jusqu'à 00:00h.
 
 ```{r}
-str(data)
+str(data_raw)
 ```
 
 Le jeu de données contient des variables de différents types : - numériques (double), - catégorielles (chr) et - des dates (date).
@@ -69,44 +69,26 @@ Le jeu de données contient des variables de différents types : - numériques (
 On regarde d'abord si il y a des valeurs manquantes dans le jeu de données.
 
 ```{r}
-data$PM2.5 == NA
+data_raw$PM2.5 == NA
 ```
 
 On voit que la colonne 'PM2.5' contient beaucoup de valeurs manquantes (NA). Nous allons donc pas l'inclure dans notre analyse.
 
 ```{r}
-data <- data %>% select(-PM2.5)
-head(data)
+data_raw <- data_raw %>% select(-PM2.5)
+head(data_raw)
 
 # mettons à jour le pColonne
-pColonne <- ncol(data)
+pColonne <- ncol(data_raw)
 ```
 
 ### Choix des variables
 
-On fait ACP, une matrice de corrélation de toute les variables numériques et on va prendre les variable qui ont un plus grand rapport de corrélation avec O3.
-
-D'abord, on identifie les variables numeriques.
-
 ```{r}
-numerical_vars <-names(data)[sapply(data, is.numeric)]
+data <- data_raw |>
+  select(
+date_debut, heure, O3, temperature, pression, pression_variation_3h, humidite, point_de_rosee)
 
-print(numerical_vars)
-
-```
-
-```{r}
-numerical_data <- data[sapply(data, is.numeric)]
-
-print(numerical_data)
-```
-
-```{}
-```
-
-Chercher les variables qui ont la corrélation la plus élevée avec \`O3\`.
-
-```{r}
 View(data)
 ```
 
@@ -119,32 +101,34 @@ View(data)
 ```
 
 ## Bivariée
-il s'agit ici de se poser la question sur la relation entre deux variables; l'une qui sera (automatiquement) o3 et d'autres variables qualitatives et quantitatives. 
-on veut expliquer o3
-on va se demander quelles conditions méteorologiques influencent sur la formation et le  niveau d'o3;
-les variables de ces conditions meteorologiques etant:
--la temperature
--l'humidité
--le niveau de pression 
--la pression variation à 3 heures
--le point de rosee
-on a comme hypothese le fait que niveau de l'ozone (o3,qui est constitué de 3 atomes d'oxygene comme sa composition chimique l'indique,)  puisse etre produit à partir d'un choc chimique provoqué par differents changements meteorologiques, qui permettrait à l'oxygene qui compose 21% de l'atmosphere terrestre, de se transformer en ozone
-ici, les variables explicatives seront toutes quantitatives.
-on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, o3;
-puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'o3, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'o3.
 
+il s'agit ici de se poser la question sur la relation entre deux variables; l'une qui sera (automatiquement) o3 et d'autres variables qualitatives et quantitatives. on veut expliquer o3 on va se demander quelles conditions méteorologiques influencent sur la formation et le niveau d'o3; les variables de ces conditions meteorologiques etant: -la temperature -l'humidité -le niveau de pression -la pression variation à 3 heures -le point de rosee on a comme hypothese le fait que niveau de l'ozone (o3,qui est constitué de 3 atomes d'oxygene comme sa composition chimique l'indique,) puisse etre produit à partir d'un choc chimique provoqué par differents changements meteorologiques, qui permettrait à l'oxygene qui compose 21% de l'atmosphere terrestre, de se transformer en ozone ici, les variables explicatives seront toutes quantitatives. on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, o3; puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'o3, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'o3.
 
+la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative). \## Conclusion
 
+### ACP
 
+On fait ACP, une matrice de corrélation de toute les variables numériques et on va prendre les variable qui ont un plus grand rapport de corrélation avec O3.
 
-
-
- la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative).
-## Conclusion
+D'abord, on identifie les variables numeriques.
 
 ```{r}
-correlation_matrix <- cor(numerical_data)
+numerical_vars <-names(data_raw)[sapply(data_raw, is.numeric)]
+
+print(numerical_vars)
+
+```
+
+```{r}
+numerical_data_raw <- data_raw[sapply(data_raw, is.numeric)]
+
+print(numerical_data_raw)
+```
+
+Chercher les variables qui ont la corrélation la plus élevée avec \`O3\`.
+
+```{r}
+correlation_matrix <- cor(numerical_data_raw)
 
 print(correlation_matrix)
 ```
- 
