@@ -1,5 +1,5 @@
 git commands:
-1. From the project respo 
+1. From the project respo : faire cd parcours du fichier(nom,qui est dans document qui est dans matthieu qui est dans .....)
 2. `git pull origin main`
 3. ..work locally..
 4. git add <file_name>

@@ -119,7 +119,27 @@ View(data)
 ```
 
 ## Bivariée
+il s'agit ici de se poser la question sur la relation entre deux variables; l'une qui sera (automatiquement) o3 et d'autres variables qualitatives et quantitatives. 
+on veut expliquer o3
+on va se demander quelles conditions méteorologiques influencent sur la formation et le  niveau d'o3;
+les variables de ces conditions meteorologiques etant:
+-la temperature
+-l'humidité
+-le niveau de pression 
+-la pression variation à 3 heures
+-le point de rosee
+on a comme hypothese le fait que niveau de l'ozone (o3,qui est constitué de 3 atomes d'oxygene comme sa composition chimique l'indique,)  puisse etre produit à partir d'un choc chimique provoqué par differents changements meteorologiques, qui permettrait à l'oxygene qui compose 21% de l'atmosphere terrestre, de se transformer en ozone
+ici, les variables explicatives seront toutes quantitatives.
+on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, o3;
+puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'o3, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'o3.
 
+
+
+
+
+
+
+ la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative).
 ## Conclusion
 
 ```{r}
@@ -127,3 +147,4 @@ correlation_matrix <- cor(numerical_data)
 
 print(correlation_matrix)
 ```
+ 
