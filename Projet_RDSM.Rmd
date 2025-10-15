@@ -1,5 +1,6 @@
 ---
 title: "Projet de data_rawvisualisation"
+authors: "Matthieu SALLE et Gayathiri RAVENDIRANE"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
@@ -23,7 +24,7 @@ library(corrplot)
 # library(DT)
 ```
 
-# Projet de data_rawvisualisation
+# Projet de data visualisation
 
 ## Imporatation de jeu de données
 
@@ -90,15 +91,34 @@ data <- data_raw |>
 date_debut, heure, O3, temperature, pression, pression_variation_3h, humidite, point_de_rosee)
 
 View(data)
+head(data)
 ```
 
 ### Objectif de l'analyse
 
 ## Univariée
 
-```{r}
+Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données, l'une après l'autre, afin de poser les bases de toute analyse ultérieure.
 
+```{r}
+ggplot(
+  data = data,                    
+  aes(x = temperature)             
+  ) +
+  geom_histogram(
+    bins = 30,                     
+    fill = "steelblue",            # Couleur inside the bars
+    color = "white"                # Color of the bar borders
+  ) +
+  labs(
+  title = "Histogram de distribution de Temperature",
+    x = "Temperature (°C)",
+    y = "Count"
+  ) +
+  theme_minimal()
 ```
+
+L'histogramme montre que les température sont plus concentré entre 8-15°C.
 
 ## Bivariée
 
