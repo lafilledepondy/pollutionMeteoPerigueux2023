@@ -1,11 +1,16 @@
 ---
-title: "Projet de datavisualisation"
+title: "Miniprojet de Datavisualisation"
+subtitle: "RDSM - ROAD"
+author:
+  - "Matthieu SALLE"
+  - "Gayathiri RAVENDIRANE"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
-  html_document: default
-  word_document: default
-  number_sections: true
+    # output_file: "Miniprojet_RDSM_Matthieu_Gayathiri.pdf"
+  html_document:
+    output_file: "Miniprojet_RDSM_Matthieu_Gayathiri.html" 
+number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -17,30 +22,29 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(corrplot)
+library(patchwork) 
 # library(kableExtra)
 # library(plotly)
 # library(gridExtra)
 # library(DT)
 ```
 
-# Projet de datavisualisation
-
-## Imporatation de jeu de données
+# Imporatation de jeu de données
 
 ```{r}
-data <- read_excel("atmo_polluants_Périgueux.xlsx", sheet = 2)
-head(data)
+data_raw <- read_excel("atmo_polluants_Périgueux.xlsx", sheet = 2)
+head(data_raw)
 ```
 
-## Introduction
+# Introduction
 
-### Description des données
+## Description des données
 
 ```{r}
-nLigne <- nrow(data)
+nLigne <- nrow(data_raw)
 print(nLigne)
 
-pColonne <- ncol(data)
+pColonne <- ncol(data_raw)
 print(pColonne)
 ```
 
@@ -50,101 +54,206 @@ La date est une unité statistique, les variables statistiques sont les autres c
 
 ```{r}
 cat("Date début\n")
-cat(format(data$date_debut[1], "%Y-%m-%d %H:%M:%S"), "\n")
+cat(format(data_raw$date_debut[1], "%Y-%m-%d %H:%M:%S"), "\n")
 
 cat("Date fin\n")
-cat(format(data$date_debut[nLigne], "%Y-%m-%d %H:%M:%S"), "\n")
+cat(format(data_raw$date_debut[nLigne], "%Y-%m-%d %H:%M:%S"), "\n")
 ```
 
 La période de mesure s'étend du 08/11/2023 de 00:00h au 07/11/2024 jusqu'à 00:00h.
 
 ```{r}
-str(data)
+str(data_raw)
 ```
 
 Le jeu de données contient des variables de différents types : - numériques (double), - catégorielles (chr) et - des dates (date).
 
-### Cleaning des données
+## Cleaning des données
 
 On regarde d'abord si il y a des valeurs manquantes dans le jeu de données.
 
 ```{r}
-data$PM2.5 == NA
+# data_raw$PM2.5 == NA # que des `NA` partout
 ```
 
-On voit que la colonne 'PM2.5' contient beaucoup de valeurs manquantes (NA). Nous allons donc pas l'inclure dans notre analyse.
+On voit que la colonne 'PM2.5' contient que de valeurs manquantes (NA). Nous allons donc pas l'inclure dans notre analyse.
 
 ```{r}
-data <- data %>% select(-PM2.5)
-head(data)
+data_raw <- data_raw %>% select(-PM2.5)
+head(data_raw)
 
 # mettons à jour le pColonne
-pColonne <- ncol(data)
+pColonne <- ncol(data_raw)
 ```
 
-### Choix des variables
+## Choix des variables
+
+```{r}
+data <- data_raw |>
+  select(
+date_debut, heure, O3, temperature, pression, pression_variation_3h, humidite, point_de_rosee)
+
+View(data)
+head(data)
+```
+
+## Objectif de l'analyse
+
+# Univariée
+
+Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données, l'une après l'autre, afin de poser les bases de toute analyse ultérieure.
+
+```{r}
+fill_color <- c("steelblue", "#7a937c", "#2e4045", "#a76168", "violet", "pink")
+plot_title <- c("O3 Concentration", "Température", "Pression", "Pression Variation 3h", "Humidité", "Point de Rosée")
+plot_x <- c("O3", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
+plot_y <- "Count"
+```
+
+## Boite à moustaches (Boxplots)
+
+```{r}
+# 1. O3
+boxplot_o3 <- ggplot(data, aes(x = O3) ) +
+  geom_boxplot(fill = fill_color[1]) +
+  labs(title = plot_title[1]) 
+
+print(boxplot_o3)
+
+# 2. Température
+boxplot_temp <- ggplot(data, aes(x = temperature) ) +
+  geom_boxplot(fill = fill_color[2]) +
+  labs(title = plot_title[2])
+
+print(boxplot_temp)
+
+# 3. Pression
+boxplot_press <- ggplot(data, aes(x = pression) ) +
+  geom_boxplot(fill = fill_color[3]) +
+  labs(title = plot_title[3]) 
+
+print(boxplot_press)
+
+# 4. Pression variation de 3h
+boxplot_pressVar3h <- ggplot(data, aes(x = pression_variation_3h) ) +
+  geom_boxplot(fill = fill_color[4]) +
+  labs(title = plot_title[4]) 
+
+print(boxplot_pressVar3h)
+
+# 5. Humidité
+boxplot_humidity <- ggplot(data, aes(x = humidite) ) +
+  geom_boxplot(fill = fill_color[5]) +
+  labs(title = plot_title[5]) 
+
+print(boxplot_humidity)
+
+# 6. Point de rosée
+boxplot_pointRosee <- ggplot(data, aes(x = point_de_rosee) ) +
+  geom_boxplot(fill = fill_color[6]) +
+  labs(title = plot_title[6]) +
+  # ⬇️ Add this layer to hide the X-axis labels and ticks ⬇️
+  theme(
+    axis.text.x = element_blank(),  # Hides the axis labels (the -0.4 to 0.4 numbers)
+    axis.ticks.x = element_blank(), # Hides the tick marks
+    axis.title.x = element_blank()  # Optional: Hides the axis title (if one was present)
+  )
+
+print(boxplot_pointRosee)
+```
+
+### Interprétation des boxplots
+
+
+
+## Histogram Plots
+
+```{r}
+bins <- 30
+
+# 1. O3
+histPlot_o3 <- ggplot(data, aes(x = O3) ) +
+  geom_histogram(bins = bins, fill = fill_color[1]) +
+  labs(title = plot_title[1], x = plot_x[1], y = plot_y) +
+  theme_minimal() 
+
+print(histPlot_o3)
+
+# 2. Tempurature
+histPlot_temp <- ggplot(data, aes(x = temperature) ) +
+  geom_histogram(bins = bins, fill = fill_color[2]) +
+  labs(title = plot_title[2], x = plot_x[2], y = plot_y) +
+  theme_minimal()
+
+print(histPlot_temp)
+
+# 3. Pression
+histPlot_press <- ggplot(data, aes(x = pression) ) +
+  geom_histogram(bins = bins, fill = fill_color[3]) +
+  labs(title = plot_title[3], x = plot_x[3], y = plot_y) +
+  theme_minimal()
+
+print(histPlot_press)
+
+# 4. Pression variation de 3h
+histPlot_pressVar3h <- ggplot(data, aes(x = pression_variation_3h) ) +
+  geom_histogram(bins = bins, fill = fill_color[4]) +
+  labs(title = plot_title[4], x = plot_x[4], y = plot_y) +
+  theme_minimal()
+
+print(histPlot_pressVar3h)
+
+# 5. Humidité
+histPlot_humidity <- ggplot(data, aes(x = humidite) ) +
+  geom_histogram(bins = bins, fill = fill_color[5]) +
+  labs(title = plot_title[5], x = plot_x[5], y = plot_y) +
+  theme_minimal()
+
+print(histPlot_humidity)
+
+# 6. Point de rosée
+histPlot_pointRosee <- ggplot(data, aes(x = point_de_rosee) ) +
+  geom_histogram(bins = bins, fill = fill_color[6]) +
+  labs(title = plot_title[6], x = plot_x[6], y = plot_y) +
+  theme_minimal()
+
+print(histPlot_pointRosee)
+```
+
+### Interprétation des histogrammes
+
+
+
+
+# Bivariée
+
+il s'agit ici de se poser la question sur la relation entre deux variables; l'une qui sera (automatiquement) o3 et d'autres variables qualitatives et quantitatives. on veut expliquer o3 on va se demander quelles conditions méteorologiques influencent sur la formation et le niveau d'o3; les variables de ces conditions meteorologiques etant: -la temperature -l'humidité -le niveau de pression -la pression variation à 3 heures -le point de rosee on a comme hypothese le fait que niveau de l'ozone (o3,qui est constitué de 3 atomes d'oxygene comme sa composition chimique l'indique,) puisse etre produit à partir d'un choc chimique provoqué par differents changements meteorologiques, qui permettrait à l'oxygene qui compose 21% de l'atmosphere terrestre, de se transformer en ozone ici, les variables explicatives seront toutes quantitatives. on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, o3; puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'o3, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'o3.
+
+la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative). \## Conclusion
+
+## ACP
 
 On fait ACP, une matrice de corrélation de toute les variables numériques et on va prendre les variable qui ont un plus grand rapport de corrélation avec O3.
 
 D'abord, on identifie les variables numeriques.
 
 ```{r}
-numerical_vars <-names(data)[sapply(data, is.numeric)]
+numerical_vars <-names(data_raw)[sapply(data_raw, is.numeric)]
 
 print(numerical_vars)
 
 ```
 
 ```{r}
-numerical_data <- data[sapply(data, is.numeric)]
+numerical_data_raw <- data_raw[sapply(data_raw, is.numeric)]
 
-print(numerical_data)
-```
-
-```{}
+print(numerical_data_raw)
 ```
 
 Chercher les variables qui ont la corrélation la plus élevée avec \`O3\`.
 
 ```{r}
-View(data)
-```
-
-### Objectif de l'analyse
-
-## Univariée
-
-```{r}
-
-```
-
-## Bivariée
-il s'agit ici de se poser la question sur la relation entre deux variables; l'une qui sera (automatiquement) o3 et d'autres variables qualitatives et quantitatives. 
-on veut expliquer o3
-on va se demander quelles conditions méteorologiques influencent sur la formation et le  niveau d'o3;
-les variables de ces conditions meteorologiques etant:
--la temperature
--l'humidité
--le niveau de pression 
--la pression variation à 3 heures
--le point de rosee
-on a comme hypothese le fait que niveau de l'ozone (o3,qui est constitué de 3 atomes d'oxygene comme sa composition chimique l'indique,)  puisse etre produit à partir d'un choc chimique provoqué par differents changements meteorologiques, qui permettrait à l'oxygene qui compose 21% de l'atmosphere terrestre, de se transformer en ozone
-ici, les variables explicatives seront toutes quantitatives.
-on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, o3;
-puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'o3, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'o3.
-
-
-
-
-
-
-
- la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative).
-## Conclusion
-
-```{r}
-correlation_matrix <- cor(numerical_data)
+correlation_matrix <- cor(numerical_data_raw)
 
 print(correlation_matrix)
 ```
- 
