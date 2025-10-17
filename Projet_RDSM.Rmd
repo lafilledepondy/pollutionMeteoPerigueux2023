@@ -104,12 +104,67 @@ head(data)
 Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données, l'une après l'autre, afin de poser les bases de toute analyse ultérieure.
 
 ```{r}
-color <- "white"
 fill_color <- c("steelblue", "#7a937c", "#2e4045", "#a76168", "violet", "pink")
 plot_title <- c("O3 Concentration", "Température", "Pression", "Pression Variation 3h", "Humidité", "Point de Rosée")
 plot_x <- c("O3", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
 plot_y <- "Count"
 ```
+
+## Boite à moustaches (Boxplots)
+
+```{r}
+# 1. O3
+boxplot_o3 <- ggplot(data, aes(x = O3) ) +
+  geom_boxplot(fill = fill_color[1]) +
+  labs(title = plot_title[1]) 
+
+print(boxplot_o3)
+
+# 2. Température
+boxplot_temp <- ggplot(data, aes(x = temperature) ) +
+  geom_boxplot(fill = fill_color[2]) +
+  labs(title = plot_title[2])
+
+print(boxplot_temp)
+
+# 3. Pression
+boxplot_press <- ggplot(data, aes(x = pression) ) +
+  geom_boxplot(fill = fill_color[3]) +
+  labs(title = plot_title[3]) 
+
+print(boxplot_press)
+
+# 4. Pression variation de 3h
+boxplot_pressVar3h <- ggplot(data, aes(x = pression_variation_3h) ) +
+  geom_boxplot(fill = fill_color[4]) +
+  labs(title = plot_title[4]) 
+
+print(boxplot_pressVar3h)
+
+# 5. Humidité
+boxplot_humidity <- ggplot(data, aes(x = humidite) ) +
+  geom_boxplot(fill = fill_color[5]) +
+  labs(title = plot_title[5]) 
+
+print(boxplot_humidity)
+
+# 6. Point de rosée
+boxplot_pointRosee <- ggplot(data, aes(x = point_de_rosee) ) +
+  geom_boxplot(fill = fill_color[6]) +
+  labs(title = plot_title[6]) +
+  # ⬇️ Add this layer to hide the X-axis labels and ticks ⬇️
+  theme(
+    axis.text.x = element_blank(),  # Hides the axis labels (the -0.4 to 0.4 numbers)
+    axis.ticks.x = element_blank(), # Hides the tick marks
+    axis.title.x = element_blank()  # Optional: Hides the axis title (if one was present)
+  )
+
+print(boxplot_pointRosee)
+```
+
+### Interprétation des boxplots
+
+
 
 ## Histogram Plots
 
@@ -118,7 +173,7 @@ bins <- 30
 
 # 1. O3
 histPlot_o3 <- ggplot(data, aes(x = O3) ) +
-  geom_histogram(bins = bins, fill = fill_color[1], color = color) +
+  geom_histogram(bins = bins, fill = fill_color[1]) +
   labs(title = plot_title[1], x = plot_x[1], y = plot_y) +
   theme_minimal() 
 
@@ -126,7 +181,7 @@ print(histPlot_o3)
 
 # 2. Tempurature
 histPlot_temp <- ggplot(data, aes(x = temperature) ) +
-  geom_histogram(bins = bins, fill = fill_color[2], color = color) +
+  geom_histogram(bins = bins, fill = fill_color[2]) +
   labs(title = plot_title[2], x = plot_x[2], y = plot_y) +
   theme_minimal()
 
@@ -134,7 +189,7 @@ print(histPlot_temp)
 
 # 3. Pression
 histPlot_press <- ggplot(data, aes(x = pression) ) +
-  geom_histogram(bins = bins, fill = fill_color[3], color = color) +
+  geom_histogram(bins = bins, fill = fill_color[3]) +
   labs(title = plot_title[3], x = plot_x[3], y = plot_y) +
   theme_minimal()
 
@@ -142,7 +197,7 @@ print(histPlot_press)
 
 # 4. Pression variation de 3h
 histPlot_pressVar3h <- ggplot(data, aes(x = pression_variation_3h) ) +
-  geom_histogram(bins = bins, fill = fill_color[4], color = color) +
+  geom_histogram(bins = bins, fill = fill_color[4]) +
   labs(title = plot_title[4], x = plot_x[4], y = plot_y) +
   theme_minimal()
 
@@ -150,7 +205,7 @@ print(histPlot_pressVar3h)
 
 # 5. Humidité
 histPlot_humidity <- ggplot(data, aes(x = humidite) ) +
-  geom_histogram(bins = bins, fill = fill_color[5], color = color) +
+  geom_histogram(bins = bins, fill = fill_color[5]) +
   labs(title = plot_title[5], x = plot_x[5], y = plot_y) +
   theme_minimal()
 
@@ -158,7 +213,7 @@ print(histPlot_humidity)
 
 # 6. Point de rosée
 histPlot_pointRosee <- ggplot(data, aes(x = point_de_rosee) ) +
-  geom_histogram(bins = bins, fill = fill_color[6], color = color) +
+  geom_histogram(bins = bins, fill = fill_color[6]) +
   labs(title = plot_title[6], x = plot_x[6], y = plot_y) +
   theme_minimal()
 
@@ -167,73 +222,6 @@ print(histPlot_pointRosee)
 
 ### Interprétation des histogrammes
 
-(1) L'histogramme de O3 montre une distribution légèrement asymétrique à droite, avec la majorité des valeurs concentrées entre 20 et 60.
-(2) L'histogramme de la température indique une distribution normale centrée autour de 12°C.
-(3) L'histogramme de la pression montre une distribution normale centrée autour de 1015 hPa.
-(4) L'histogramme de la variation de pression sur 3 heures indique une distribution centrée autour de 0 hPa/3h.
-(5) L'histogramme de l'humidité montre une distribution légèrement asymétrique à droite, avec la majorité des valeurs concentrées entre 50 et 90 g/m³.
-(6) L'histogramme du point de rosée indique une distribution normale centrée autour de 8°C.
-
-## Boite à moustaches (Boxplots)
-
-```{r}
-# 1. O3
-boxplot_o3 <- ggplot(data, aes(x = O3) ) +
-  geom_boxplot(fill = fill_color[1]) +
-  labs(title = plot_title[1], y = plot_y) +
-  theme_minimal()
-
-print(boxplot_o3)
-
-# 2. Température
-boxplot_temp <- ggplot(data, aes(x = temperature) ) +
-  geom_boxplot(fill = fill_color[2]) +
-  labs(title = plot_title[2], y = plot_y) +
-  theme_minimal()
-
-print(boxplot_temp)
-
-# 3. Pression
-boxplot_press <- ggplot(data, aes(x = pression) ) +
-  geom_boxplot(fill = fill_color[3]) +
-  labs(title = plot_title[3], y = plot_y) +
-  theme_minimal()
-
-print(boxplot_press)
-
-# 4. Pression variation de 3h
-boxplot_pressVar3h <- ggplot(data, aes(x = pression_variation_3h) ) +
-  geom_boxplot(fill = fill_color[4]) +
-  labs(title = plot_title[4], y = plot_y) +
-  theme_minimal()
-
-print(boxplot_pressVar3h)
-
-# 5. Humidité
-boxplot_humidity <- ggplot(data, aes(x = humidite) ) +
-  geom_boxplot(fill = fill_color[5]) +
-  labs(title = plot_title[5], y = plot_x[5]) +
-  theme_minimal()
-
-print(boxplot_humidity)
-
-# 6. Point de rosée
-boxplot_pointRosee <- ggplot(data, aes(x = point_de_rosee) ) +
-  geom_boxplot(fill = fill_color[6]) +
-  labs(title = plot_title[6], y = plot_y) +
-  theme_minimal()
-
-print(boxplot_pointRosee)
-```
-
-### Interprétation des boxplots
-
-(1) Le boxplot de O3 montre que la médiane est autour de 40, avec quelques valeurs extrêmes au-dessus de 80.
-(2) Le boxplot de la température indique que la médiane est proche de 12°C, avec des valeurs extrêmes allant jusqu'à environ 25°C.
-(3) Le boxplot de la pression montre une médiane autour de 1015 hPa, avec des valeurs extrêmes allant jusqu'à environ 1030 hPa.
-(4) Le boxplot de la variation de pression sur 3 heures indique une médiane proche de 0 hPa/3h, avec des valeurs extrêmes allant jusqu'à environ 10 hPa/3h.
-(5) Le boxplot de l'humidité montre une médiane autour de 70 g/m³, avec des valeurs extrêmes allant jusqu'à environ 100 g/m³.
-(6) Le boxplot du point de rosée indique une médiane proche de 8°C, avec des valeurs extrêmes allant jusqu'à environ 20°C.
 
 
 
