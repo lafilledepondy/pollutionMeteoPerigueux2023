@@ -1,17 +1,14 @@
 git commands:
-1. From the project respo : faire cd parcours du fichier(nom,qui est dans document qui est dans matthieu qui est dans .....)
+1. From the project respo : faire cd Microsoft.PowerShell.Core\FileSystem::\\wsl.localhost\Ubuntu\home\matthieu\Projet_TD1_RDSM\pollutionMeteoPerigueux2023
 2. `git pull origin main`
 3. ..work locally..
 4. git add <file_name>
 NB: replace the <file_name> by the exact name of the file
-5. git commit -m "your_message" 
+5. git commit -m "your_message" (((IMPORTANT, toujours envoyer un message, car comme ca on  est sur que c'est une nouvelle version)))
 NB: replace "your_message" by "blabla" 
 6. git push 
 
-_______________________________________________________________
-data -> tableau avec les variables qu'on utilise
-data_raw -> tableau avec toutes les variables
-
+faire git status pour voir ce qui doit etre envoyé(rouge) ou non (vert)
 _______________________________________________________________
 
 [] Intro	
