@@ -7,25 +7,23 @@ author:
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   pdf_document: default
-    # output_file: "Miniprojet_RDSM_Matthieu_Gayathiri.pdf"
-  html_document:
-    output_file: "Miniprojet_RDSM_Matthieu_Gayathiri.html" 
+  rmarkdown: default
 number_sections: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-options(width = 100, scipen = 999) 
+options(width = 100, scipen = 999)
+# knitr::opts_chunk$set(fig.width=4, fig.height=2.5) # ADDED
 
 library(readxl)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(corrplot)
-library(patchwork) 
 # library(kableExtra)
 # library(plotly)
-# library(gridExtra)
+library(gridExtra) # ADDED
 # library(DT)
 ```
 
@@ -33,7 +31,7 @@ library(patchwork)
 
 ```{r}
 data_raw <- read_excel("atmo_polluants_Périgueux.xlsx", sheet = 2)
-head(data_raw)
+# head(data_raw)
 ```
 
 # Introduction
@@ -63,7 +61,7 @@ cat(format(data_raw$date_debut[nLigne], "%Y-%m-%d %H:%M:%S"), "\n")
 La période de mesure s'étend du 08/11/2023 de 00:00h au 07/11/2024 jusqu'à 00:00h.
 
 ```{r}
-str(data_raw)
+# str(data_raw)
 ```
 
 Le jeu de données contient des variables de différents types : - numériques (double), - catégorielles (chr) et - des dates (date).
@@ -80,7 +78,7 @@ On voit que la colonne 'PM2.5' contient que de valeurs manquantes (NA). Nous all
 
 ```{r}
 data_raw <- data_raw %>% select(-PM2.5)
-head(data_raw)
+# head(data_raw)
 
 # mettons à jour le pColonne
 pColonne <- ncol(data_raw)
@@ -93,21 +91,21 @@ data <- data_raw |>
   select(
 date_debut, heure, O3, temperature, pression, pression_variation_3h, humidite, point_de_rosee)
 
-View(data)
-head(data)
+# View(data)
+# head(data)
 ```
 
 ## Objectif de l'analyse
 
 # Univariée
 
-Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données, l'une après l'autre, afin de poser les bases de toute analyse ultérieure.
+Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données, l'une après l'autre, afin de poser les bases de toute analyse ultérieure et pour avoir une idée sur la façon dont chaque valeurs sont réparties.
 
 ```{r}
 fill_color <- c("steelblue", "#7a937c", "#2e4045", "#a76168", "violet", "pink")
-plot_title <- c("O3 Concentration", "Température", "Pression", "Pression Variation 3h", "Humidité", "Point de Rosée")
 plot_x <- c("O3", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
-plot_y <- "Count"
+plot_y_count <- "Count"
+plot_y_density <- "Density"
 ```
 
 ## Boite à moustaches (Boxplots)
@@ -116,114 +114,186 @@ plot_y <- "Count"
 # 1. O3
 boxplot_o3 <- ggplot(data, aes(x = O3) ) +
   geom_boxplot(fill = fill_color[1]) +
-  labs(title = plot_title[1]) 
-
-print(boxplot_o3)
+  theme(
+    axis.title.y = element_blank(),  
+    axis.text.y = element_blank(),   
+    axis.ticks.y = element_blank()   
+  )
 
 # 2. Température
 boxplot_temp <- ggplot(data, aes(x = temperature) ) +
   geom_boxplot(fill = fill_color[2]) +
-  labs(title = plot_title[2])
-
-print(boxplot_temp)
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
 
 # 3. Pression
 boxplot_press <- ggplot(data, aes(x = pression) ) +
   geom_boxplot(fill = fill_color[3]) +
-  labs(title = plot_title[3]) 
-
-print(boxplot_press)
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
 
 # 4. Pression variation de 3h
 boxplot_pressVar3h <- ggplot(data, aes(x = pression_variation_3h) ) +
   geom_boxplot(fill = fill_color[4]) +
-  labs(title = plot_title[4]) 
-
-print(boxplot_pressVar3h)
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
 
 # 5. Humidité
 boxplot_humidity <- ggplot(data, aes(x = humidite) ) +
   geom_boxplot(fill = fill_color[5]) +
-  labs(title = plot_title[5]) 
-
-print(boxplot_humidity)
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
 
 # 6. Point de rosée
 boxplot_pointRosee <- ggplot(data, aes(x = point_de_rosee) ) +
   geom_boxplot(fill = fill_color[6]) +
-  labs(title = plot_title[6]) +
-  # ⬇️ Add this layer to hide the X-axis labels and ticks ⬇️
   theme(
-    axis.text.x = element_blank(),  # Hides the axis labels (the -0.4 to 0.4 numbers)
-    axis.ticks.x = element_blank(), # Hides the tick marks
-    axis.title.x = element_blank()  # Optional: Hides the axis title (if one was present)
+    axis.title.y = element_blank(), 
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
   )
 
-print(boxplot_pointRosee)
+grid.arrange(boxplot_o3, 
+             boxplot_temp, 
+             boxplot_press, 
+             boxplot_pressVar3h, 
+             boxplot_humidity, 
+             boxplot_pointRosee, 
+             nrow=3, ncol=2)
 ```
 
 ### Interprétation des boxplots
 
+(1) Le boxplot montrent la concentration d’O3 (ozone) dans l’air ambiant. On voit que la médiane vers 55 ug.m³ se trouve quasiment au centre de la boîte, ce qui dit que la distribution est assez équilibrée. Aussi, il n’y a pas d'outliers (points isolés), donc pas de valeurs aberrantes vraiment marquées sur ce graphique. On remarque que la majorité des concentrations se situent entre 30 et 70 ug.m³, ce qui fait que l’essentiel des données est bien regroupé, avec une valeur centrale vers 55 ug.m³. **Cela veut dire qu’on a une répartition plutôt homogène des niveaux d’ozone, sans grosse anomalie ou écart extrême.**
 
+(2) Sur ce boxplot de la température, on remarque d'abord que la médiane se situe assez près du centre de la boîte, ce qui suggère une distribution plutôt symétrique des valeurs centrales. Cependant, on observe plusieurs points à droite du graphique, représentant des valeurs élevées considérées comme des outliers selon la règle des 1.5 fois l'écart interquartile. Cela suggère que des températures exceptionnellement élevées se produisent fréquemment, dépassant la fourchette habituelle des données (exemple des certains épisodes météorologiques chauds: canicules, pics de chaleur). De même, on voit aussi des quelque outiliers à gauche, indiquant des températures exceptionnellement basses. **La majorité, 50%, des températures se situent entre environ 9°C et 17°C, avec une médiane autour de 13°C, mais il y a aussi des occurrences notables de températures extrêmes (bases et hautes).** La présence des épisodes de températures élevées (resp. bases) amène à se demander s’il existerai un lien entre ces épisodes de chaleur (ou froide) et une augmentation de la formation d’ozone, puisque les réactions photochimiques responsables de l’ozone sont connues pour s’intensifier lorsque la température monte.
+
+(3) On note que la boîte centrale est très resserrée autour d'une médiane située à environ 1018 hPa. Cela indique que la grande majorité des valeurs de pression se regroupent dans un intervalle relativement étroit, typique des pressions atmosphériques standards à la surface. Par contre, on remarque qu'il existe des outliers aussi bien dans les basses que dans les hautes pressions. La dispersion globale s'étend de près de 980 hPa à 1040 hPa. Cette présence de valeurs extrêmes montre que, même si la pression varie peu dans la masse centrale des observations, il arrive occasionnellement d'observer des épisodes de pression anormale. Une hypothèse : peut-être liés à des systèmes météorologiques particuliers comme ou des anticyclones marqués. Ainsi, **la majorité des valeurs se trouve entre 1010 et 1025 hPa, autour d'une médiane vers 1014 hPa, mais il existe aussi des cas remarquables de pressions très hautes ou très basses.** Il serait pertinent de se demander si ces variations inhabituelles de pression atmosphérique jouent un rôle dans la formation ou de dissipation de l'ozone, en raison de leur lien potentiel avec les conditions météorologiques extrêmes.
+
+(4) Le boxplot de la variation de pression sur 3 heures montre que la médiane est exactement à 0, ce qui indique que la plupart du temps, la pression n'évolue pas beaucoup sur de courtes périodes. **La boîte, très centrée autour de zéro, confirme que 50% des variations se situent dans un intervalle très réduit.** Cependant, on observe de nombreux outliers aux deux extrémités du graphique : cela signifie qu’il existe occasionnellement des variations de pression brutales, que ce soit des hausses ou des baisses importantes sur 3h. La question du lien entre variation de pression et la O3 se pose de façon similaire à celle de la pression atmosphérique.
+
+(5) Le boxplot de l’humidité montre que la majorité des valeurs sont élevées : **la boîte se situe entre environ 75% et 95%, avec une médiane autour de 87%**. Cela veut dire que, dans la plupart des cas, l’air est assez humide dans ce jeu de données. On observe cependant un grand nombre d’outliers à gauche, bien en dessous de 45% d’humidité, ce qui indique que des épisodes d’air très sec se produisent parfois, même s’ils sont minoritaires.
+
+(6) Le boxplot du point de rosée montre une répartition assez symétrique des valeurs centrales, (équilibrés) avec une médiane autour de 10°C. **La boîte indique que la majorité des observations se situent entre environ 6°C et 14°C.** On note des outliers à gauche (vers 0°C et moins) et à droite (vers 20°C et plus), ce qui signifie que des épisodes d'air très sec ou très humide peuvent exceptionnellement survenir. Comme pour les autres variables météorologiques, il serait pertinent de se demander si des valeurs extrêmes du point de rosée sont liées à des variations marquées du niveau d'ozone, en particulier lors de périodes où l’air est particulièrement sec ou humide.
 
 ## Histogram Plots
 
 ```{r}
 bins <- 30
 
-# 1. O3
+# 1. O3 - Histogramme simple
 histPlot_o3 <- ggplot(data, aes(x = O3) ) +
   geom_histogram(bins = bins, fill = fill_color[1]) +
-  labs(title = plot_title[1], x = plot_x[1], y = plot_y) +
+  labs(x = plot_x[1], y = plot_y_count) +
   theme_minimal() 
 
-print(histPlot_o3)
+# 1. O3 - Histogramme avec densité
+histPlot_o3_density <- ggplot(data, aes(x = O3)) +
+  geom_histogram(aes(y = after_stat(density)), bins = bins, fill = fill_color[1]) +
+  geom_density(aes(y = after_stat(density)), alpha = 0.2, fill = fill_color[1]) +
+  labs(x = plot_x[1], y = plot_y_density) +
+  theme_minimal()
 
-# 2. Tempurature
+# 2. Tempurature -  Histogramme simple
 histPlot_temp <- ggplot(data, aes(x = temperature) ) +
   geom_histogram(bins = bins, fill = fill_color[2]) +
-  labs(title = plot_title[2], x = plot_x[2], y = plot_y) +
+  labs(x = plot_x[2], y = plot_y_count) +
   theme_minimal()
 
-print(histPlot_temp)
+# 2. Temperature - Histogramme avec densité
+histPlot_temp_density <- ggplot(data, aes(x = temperature)) +
+  geom_histogram(aes(y = after_stat(density)), bins = bins, fill = fill_color[2]) +
+  geom_density(aes(y = after_stat(density)), alpha = 0.2, fill = fill_color[2]) +
+  labs(x = plot_x[2], y = plot_y_density) +
+  theme_minimal()
 
-# 3. Pression
+# 3. Pression - Histogramme simple
 histPlot_press <- ggplot(data, aes(x = pression) ) +
   geom_histogram(bins = bins, fill = fill_color[3]) +
-  labs(title = plot_title[3], x = plot_x[3], y = plot_y) +
+  labs(x = plot_x[3], y = plot_y_count) +
   theme_minimal()
 
-print(histPlot_press)
+# 3. Pression - Histogramme avec densité
+histPlot_press_density <- ggplot(data, aes(x = pression)) +
+  geom_histogram(aes(y = after_stat(density)), bins = bins, fill = fill_color[3]) +
+  geom_density(aes(y = after_stat(density)), alpha = 0.2, fill = fill_color[3]) +
+  labs(x = plot_x[3], y = plot_y_density) +
+  theme_minimal()
 
-# 4. Pression variation de 3h
+# 4. Pression variation de 3h - Histogramme simple
 histPlot_pressVar3h <- ggplot(data, aes(x = pression_variation_3h) ) +
   geom_histogram(bins = bins, fill = fill_color[4]) +
-  labs(title = plot_title[4], x = plot_x[4], y = plot_y) +
+  labs(x = plot_x[4], y = plot_y_count) +
   theme_minimal()
 
-print(histPlot_pressVar3h)
+# 4. Pression variation de 3h - Histogramme avec densité
+histPlot_pressVar3h_density <- ggplot(data, aes(x = pression_variation_3h)) +
+  geom_histogram(aes(y = after_stat(density)), bins = bins, fill = fill_color[4]) +
+  geom_density(aes(y = after_stat(density)), alpha = 0.2, fill = fill_color[4]) +
+  labs(x = plot_x[4], y = plot_y_density) +
+  theme_minimal()
 
-# 5. Humidité
+# 5. Humidité - Histogramme simple
 histPlot_humidity <- ggplot(data, aes(x = humidite) ) +
   geom_histogram(bins = bins, fill = fill_color[5]) +
-  labs(title = plot_title[5], x = plot_x[5], y = plot_y) +
+  labs(x = plot_x[5], y = plot_y_count) +
   theme_minimal()
 
-print(histPlot_humidity)
+# 5. Humidité - Histogramme avec densité
+histPlot_humidity_density <- ggplot(data, aes(x = humidite)) +
+  geom_histogram(aes(y = after_stat(density)), bins = bins, fill = fill_color[5]) +
+  geom_density(aes(y = after_stat(density)), alpha = 0.2, fill = fill_color[5]) +
+  labs(x = plot_x[5], y = plot_y_density) +
+  theme_minimal()
 
-# 6. Point de rosée
+# 6. Point de rosée - Histogramme simple
 histPlot_pointRosee <- ggplot(data, aes(x = point_de_rosee) ) +
   geom_histogram(bins = bins, fill = fill_color[6]) +
-  labs(title = plot_title[6], x = plot_x[6], y = plot_y) +
+  labs(x = plot_x[6], y = plot_y_count) +
   theme_minimal()
 
-print(histPlot_pointRosee)
+# 6. Point de rosée - Histogramme avec densité
+histPlot_pointRosee_density <- ggplot(data, aes(x = point_de_rosee)) +
+  geom_histogram(aes(y = after_stat(density)), bins = bins, fill = fill_color[6]) +
+  geom_density(aes(y = after_stat(density)), alpha = 0.2, fill = fill_color[6]) +
+  labs(x = plot_x[6], y = plot_y_density) +
+  theme_minimal()
+
+grid.arrange(histPlot_o3, histPlot_o3_density,
+             histPlot_temp, histPlot_temp_density,
+             histPlot_press, histPlot_press_density,
+             nrow=3, ncol=2)
+grid.arrange(histPlot_pressVar3h, histPlot_pressVar3h_density,
+             histPlot_humidity, histPlot_humidity_density,
+             histPlot_pointRosee, histPlot_pointRosee_density, 
+             nrow=3, ncol=2)
 ```
 
 ### Interprétation des histogrammes
 
+(1) Dans l'histogramme de la concentration d’O3 on observe que les valeurs de O3 sont assez étalées : la plupart sont comprises entre 0 et environ 100, avec une majorité située autour de 55 à 70. La présence d'une petite pic, autour de 10 et 30, (près de 410 occurrences) à gauche et beaucoup de valeur sur la partie gauche de du pic centrale (près de 600 occurrences) indique que la distribution est légèrement asymétrique (légèrement étalée vers les fortes concentrations). On voit qu’il existe plusieurs valeurs faibles (près de zéro), mais aussi un nombre non négligeable de valeurs élevées (jusqu’à 120). La courbe noire lissée permet de mieux saisir la forme globale de la distribution : il n’y a pas un pic unique, mais une zone centrale où la concentration d’O3 est la plus fréquente ; de plus, les fréquences diminuent progressivement vers les extrêmes. **On peut donc conclure que la majorité des niveaux d’ozone restent dans une plage intermédiaire, mais des épisodes de faible ou de forte pollution existent.**
 
+(2) L'histogramme simple de température (premier graphique) montre que la majorité des températures sont regroupées entre 7°C et 20°C, avec un pic autour de 11°C. La distribution présente un seul pic principal et il y a une légère asymétrie vers les hautes valeurs, avec une traîne qui s’étend progressivement jusqu’à environ 40°C. Le second graphique, combinant histogramme et courbe de densité, met en évidence cette observation : la densité maximale est autour de 11°C, la distribution reste centrée mais s’étale davantage pour les valeurs élevées, traduisant des épisodes de chaleur moins fréquents mais bien présents. **Cette distribution suggère que les températures dans les données sont majoritairement modérées, mais des épisodes de températures élevées existent.**
 
+(3) L'histogramme simple de pression (premier graphique) met en avant que la majorité des valeurs de pression sont regroupées entre 1000 et 1025 hPa, avec un pic de fréquence autour de 1015 hPa. La distribution présente un unique sommet central et une symétrie globale, mais une traîne qui s'étend lentement vers les valeurs extrêmes, aussi bien pour les pressions basses que hautes. Le second graphique, combinant histogramme et courbe de densité, confirme cette impression : la densité maximale coïncide avec le pic de l'histogramme, et la courbe suit une forme quasi-gaussienne centrée autour de 1015 hPa, mais avec une légère dispersion aux deux extrémités. **Cette distribution suggère que les pressions atmosphériques dans les données sont essentiellement standards, bien que l'on observe parfois des épisodes de pressions basses ou hautes.**
+
+(4) L'histogramme simple de la variation de pression sur 3 heures (premier graphique) montre que la majorité des variations sont très faibles, centrées autour de 0 hPa/3h, avec un pic de fréquence très marqué à cette valeur. La distribution présente une forte concentration des valeurs proches de zéro, indiquant que la pression reste généralement stable sur de courtes périodes. Cependant, on observe aussi une traîne qui s'étend vers les variations plus importantes, tant positives que négatives, bien que ces occurrences soient nettement moins fréquentes. Le second graphique, combinant histogramme et courbe de densité, confirme cette impression : la densité maximale est très proche à zéro, et la courbe descend rapidement pour les variations plus extrêmes. **Cette distribution suggère que les variations de pression sont généralement minimes, mais des épisodes de changements brusques existent.**
+
+(5) L'histogramme simple de l'humidité (premier graphique) révèle que la majorité des valeurs d'humidité sont élevées, principalement entre 80% et 100%, avec un pic marqué autour de 95%. La distribution est asymétrique, avec une concentration nette vers les hautes valeurs et une traîne qui s'étend vers les valeurs plus basses. Le second graphique, combinant histogramme et courbe de densité, confirme cette observation : la densité maximale coïncide avec le pic de l'histogramme, et la courbe montre une forte inclinaison vers les hautes humidités. **Cette distribution suggère que l'air dans les données est majoritairement humide, bien que des épisodes d'air sec soient également présents.**
+
+(6) L'histogramme simple du point de rosée (premier graphique) indique que la majorité des valeurs se situent entre 5°C et 20°C, avec un pic autour de 10°C. La distribution est relativement symétrique autour de ce pic, mais on observe une légère traîne vers les valeurs plus élevées ou faible, inférieures à 0°C ou supérieures à 20°C. Sur le second graph, la densité maximale correspond au pic de l'histogramme, et la courbe suit une forme quasi-gaussienne centrée autour de 10°C. **Cette distribution suggère que le point de rosée dans les données est généralement modéré, bien que quelques épisodes d'air très humide ou très sec.**
 
 # Bivariée
 
@@ -240,14 +310,13 @@ D'abord, on identifie les variables numeriques.
 ```{r}
 numerical_vars <-names(data_raw)[sapply(data_raw, is.numeric)]
 
-print(numerical_vars)
-
+# print(numerical_vars)
 ```
 
 ```{r}
 numerical_data_raw <- data_raw[sapply(data_raw, is.numeric)]
 
-print(numerical_data_raw)
+# print(numerical_data_raw)
 ```
 
 Chercher les variables qui ont la corrélation la plus élevée avec \`O3\`.
@@ -255,5 +324,5 @@ Chercher les variables qui ont la corrélation la plus élevée avec \`O3\`.
 ```{r}
 correlation_matrix <- cor(numerical_data_raw)
 
-print(correlation_matrix)
+# print(correlation_matrix)
 ```
