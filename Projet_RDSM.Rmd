@@ -301,6 +301,93 @@ il s'agit ici de se poser la question sur la relation entre deux variables; l'un
 
 la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative). \## Conclusion
 
+Corrélation entre O₃ et les variables explicatives
+
+```{r}
+vars <- c("temperature", "pression", "humidite", "point_de_rosee")
+
+correlations <- sapply(data[vars], function(x) cor(x, data$O3, use = "complete.obs"))
+barplot(sort(abs(correlations), decreasing = TRUE),
+        las = 2, col = "steelblue",
+        main = "Corrélation absolue avec O₃")
+
+```
+
+Interpretation
+
+on remarque 2 categories ; 1)humidité/ temperature, 2)pression/point_de_rosee
+
+on fera attention ici, on est en correlation absolue, autrement dit on ne prends pas en compte le signe; ca peut etre une correlation positive ou negative; on remarque neamoins que les variables humidité et temperature sont les variables les plus correlees à o3 (c'est a dire que o3 evolue de la maniere la plus reguliere avec la variable humidité), et pression/ point de rose le sont moins.
+
+Il s'agira ensuite de voir quelles sont les variables les plus correlees positivement avec o3 grace à la regression lineaire, et voir la force de l'effet unitaire de chacunes de leur pentes.
+
+Régression linéaire simple, avec un filtre à la p-value de \<0.05
+
+```{r}
+vars_significatives <- c()
+for (v in vars) {
+  model <- lm(O3 ~ data[[v]], data = data) 
+  p_value <- summary(model)$coefficients[2, 4]  
+  r_squared <- summary(model)$r.squared         
+  coef <- summary(model)$coefficients[2, 1]    
+  
+  if (!is.na(p_value) && p_value < 0.05) {
+    vars_significatives <- c(vars_significatives, v)
+    cat("\n✅", v,
+        "\n  - p-value :", round(p_value, 4),
+        "\n  - pente :", round(coef, 4),
+        "\n  - R² :", round(r_squared, 4), "\n")
+  }
+}
+
+
+```
+
+Interpretation
+
+Tout d'abord, on remarque que toutes les variables sont significatives car elles ont toutes une p-value inferieure à 0.05. On remarque ensuite que 2 variables sont positivement correlees à o3 ( temperature (et point de rose) et deux autres sont negativement coreelees à o3( humidite et pression).
+
+Plus le niveau de la temperature et du point de rose augmente, plus celui d'o3 augmente( resp de 1.8 et 1.0). Plus l'humidité et la pression augmentent, plus le niveau d'o3 diminue( resp de 1.1 et 0.8); on fait ce constat en regardant la valeur de la pente des variables.
+
+Pour autant, la variable qui explique le plus la variabilité de o3 est l'humidité car son R\^2 est le plus élévé des variables avec une valeur de 0.38, suivi de la temperature avec une valeur de 0.22, c'est à dire que ces variables expliquent respectivement 38% et 22% de l'evolution des niveaux de o3.
+
+Ainsi, le point de rosée est une variable secondaire , la pression a un effet modéré, la temperature est pertinente et explicative, et l'humidité est la variable la plus explicative ;
+
+L'humidité est donc le meilleur prédicteur
+
+La regression multiple va permettre de voir comment evolue o3 en modifiant une variable mais en gardant les autres constantes.
+
+Régression Multiple: Modéliser o3 avec toutes les variables significatives en meme temps
+
+```{r}
+model_multi <- lm(O3 ~  temperature + pression +humidite + point_de_rosee, data )
+
+summary(model_multi)
+
+```
+
+Tout d'abord, on constate qu'avec seulement ces quatre variables, on peut expliquer 45.8% de la variabilité de o3 en regardant le R\^2 , ce qui montre que ce modele est relativement solide.
+
+On observe que, lorsque chaque variable — température, pression ou humidité — augmente individuellement, tout en maintenant les autres constantes, le niveau d’ozone diminue. Seul le point de rosée présente un effet inverse : à variables constantes, son augmentation entraîne une hausse du niveau d’ozone.
+
+On remarque une difference par exemple entre la regression multiple et la regression simple de la variable temperature; ici elle a une pente negative car cette pente est calculée en gardant les autres variables comme etant des constantes, alors que dans la regression simple , le niveau de pente est decrit individuellement, prenant en compte qu'une variable et l'ozone.
+
+( A MODIFIER PEUT ETRE, vu que regression simple et multiple donnent les memes resultats, un separement, l'autre ttes ensembles ou pas? a revoir)
+
+ACP ( réduire la dimension et identifier les variables les plus explicatives)
+
+```{r}
+# ACP sur les variables explicatives
+acp <- prcomp(data[vars], scale. = TRUE)
+
+# Résumé des composantes
+summary(acp)
+
+# Graphique de la variance expliquée
+plot(acp, type = "l", main = "Variance expliquée par les composantes principales")
+
+```
+
 ## ACP
 
 On fait ACP, une matrice de corrélation de toute les variables numériques et on va prendre les variable qui ont un plus grand rapport de corrélation avec O3.
