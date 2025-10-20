@@ -11,14 +11,14 @@ NB: replace "your_message" by "blabla"
 faire git status pour voir ce qui doit etre envoyé(rouge) ou non (vert)
 _______________________________________________________________
 
-[] Intro	
-   [] Cleaning up the data (NA)
-   [] Calculs vite fait
+[X] Intro	
+   [X] Cleaning up the data (NA)
+   [-] Calculs vite fait
    [] Objectif (Hypo, Problématique)
 
-[] Univarié
+[X] Univarié
 
-[] Bivarié
+[X] Bivarié
 
 [] Conclusion 
 
