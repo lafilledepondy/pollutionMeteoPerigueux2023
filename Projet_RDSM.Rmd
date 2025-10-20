@@ -6,7 +6,8 @@ author:
   - "Gayathiri RAVENDIRANE"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  pdf_document: default
+  pdf_document: 
+      latex_engine: xelatex
   rmarkdown: default
 number_sections: true
 ---
@@ -103,7 +104,7 @@ Dans un premier temps, étudions les mesures statistiques et la distribution de 
 
 ```{r}
 fill_color <- c("steelblue", "#7a937c", "#2e4045", "#a76168", "violet", "pink")
-plot_x <- c("O3", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
+plot_x <- c("O$_3$", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
 plot_y_count <- "Count"
 plot_y_density <- "Density"
 ```
@@ -176,13 +177,13 @@ grid.arrange(boxplot_o3,
 
 ### Interprétation des boxplots
 
-(1) Le boxplot montrent la concentration d’O3 (ozone) dans l’air ambiant. On voit que la médiane vers 55 ug.m³ se trouve quasiment au centre de la boîte, ce qui dit que la distribution est assez équilibrée. Aussi, il n’y a pas d'outliers (points isolés), donc pas de valeurs aberrantes vraiment marquées sur ce graphique. On remarque que la majorité des concentrations se situent entre 30 et 70 ug.m³, ce qui fait que l’essentiel des données est bien regroupé, avec une valeur centrale vers 55 ug.m³. **Cela veut dire qu’on a une répartition plutôt homogène des niveaux d’ozone, sans grosse anomalie ou écart extrême.**
+(1) Le boxplot montrent la concentration d’O~3~ (ozone) dans l’air ambiant. On voit que la médiane vers 55 ug.m³ se trouve quasiment au centre de la boîte, ce qui dit que la distribution est assez équilibrée. Aussi, il n’y a pas d'outliers (points isolés), donc pas de valeurs aberrantes vraiment marquées sur ce graphique. On remarque que la majorité des concentrations se situent entre 30 et 70 ug.m³, ce qui fait que l’essentiel des données est bien regroupé, avec une valeur centrale vers 55 ug.m³. **Cela veut dire qu’on a une répartition plutôt homogène des niveaux d’ozone, sans grosse anomalie ou écart extrême.**
 
 (2) Sur ce boxplot de la température, on remarque d'abord que la médiane se situe assez près du centre de la boîte, ce qui suggère une distribution plutôt symétrique des valeurs centrales. Cependant, on observe plusieurs points à droite du graphique, représentant des valeurs élevées considérées comme des outliers selon la règle des 1.5 fois l'écart interquartile. Cela suggère que des températures exceptionnellement élevées se produisent fréquemment, dépassant la fourchette habituelle des données (exemple des certains épisodes météorologiques chauds: canicules, pics de chaleur). De même, on voit aussi des quelque outiliers à gauche, indiquant des températures exceptionnellement basses. **La majorité, 50%, des températures se situent entre environ 9°C et 17°C, avec une médiane autour de 13°C, mais il y a aussi des occurrences notables de températures extrêmes (bases et hautes).** La présence des épisodes de températures élevées (resp. bases) amène à se demander s’il existerai un lien entre ces épisodes de chaleur (ou froide) et une augmentation de la formation d’ozone, puisque les réactions photochimiques responsables de l’ozone sont connues pour s’intensifier lorsque la température monte.
 
 (3) On note que la boîte centrale est très resserrée autour d'une médiane située à environ 1018 hPa. Cela indique que la grande majorité des valeurs de pression se regroupent dans un intervalle relativement étroit, typique des pressions atmosphériques standards à la surface. Par contre, on remarque qu'il existe des outliers aussi bien dans les basses que dans les hautes pressions. La dispersion globale s'étend de près de 980 hPa à 1040 hPa. Cette présence de valeurs extrêmes montre que, même si la pression varie peu dans la masse centrale des observations, il arrive occasionnellement d'observer des épisodes de pression anormale. Une hypothèse : peut-être liés à des systèmes météorologiques particuliers comme ou des anticyclones marqués. Ainsi, **la majorité des valeurs se trouve entre 1010 et 1025 hPa, autour d'une médiane vers 1014 hPa, mais il existe aussi des cas remarquables de pressions très hautes ou très basses.** Il serait pertinent de se demander si ces variations inhabituelles de pression atmosphérique jouent un rôle dans la formation ou de dissipation de l'ozone, en raison de leur lien potentiel avec les conditions météorologiques extrêmes.
 
-(4) Le boxplot de la variation de pression sur 3 heures montre que la médiane est exactement à 0, ce qui indique que la plupart du temps, la pression n'évolue pas beaucoup sur de courtes périodes. **La boîte, très centrée autour de zéro, confirme que 50% des variations se situent dans un intervalle très réduit.** Cependant, on observe de nombreux outliers aux deux extrémités du graphique : cela signifie qu’il existe occasionnellement des variations de pression brutales, que ce soit des hausses ou des baisses importantes sur 3h. La question du lien entre variation de pression et la O3 se pose de façon similaire à celle de la pression atmosphérique.
+(4) Le boxplot de la variation de pression sur 3 heures montre que la médiane est exactement à 0, ce qui indique que la plupart du temps, la pression n'évolue pas beaucoup sur de courtes périodes. **La boîte, très centrée autour de zéro, confirme que 50% des variations se situent dans un intervalle très réduit.** Cependant, on observe de nombreux outliers aux deux extrémités du graphique : cela signifie qu’il existe occasionnellement des variations de pression brutales, que ce soit des hausses ou des baisses importantes sur 3h. La question du lien entre variation de pression et la O~3~ se pose de façon similaire à celle de la pression atmosphérique.
 
 (5) Le boxplot de l’humidité montre que la majorité des valeurs sont élevées : **la boîte se situe entre environ 75% et 95%, avec une médiane autour de 87%**. Cela veut dire que, dans la plupart des cas, l’air est assez humide dans ce jeu de données. On observe cependant un grand nombre d’outliers à gauche, bien en dessous de 45% d’humidité, ce qui indique que des épisodes d’air très sec se produisent parfois, même s’ils sont minoritaires.
 
@@ -283,7 +284,7 @@ grid.arrange(histPlot_pressVar3h, histPlot_pressVar3h_density,
 
 ### Interprétation des histogrammes
 
-(1) Dans l'histogramme de la concentration d’O3 on observe que les valeurs de O3 sont assez étalées : la plupart sont comprises entre 0 et environ 100, avec une majorité située autour de 55 à 70. La présence d'une petite pic, autour de 10 et 30, (près de 410 occurrences) à gauche et beaucoup de valeur sur la partie gauche de du pic centrale (près de 600 occurrences) indique que la distribution est légèrement asymétrique (légèrement étalée vers les fortes concentrations). On voit qu’il existe plusieurs valeurs faibles (près de zéro), mais aussi un nombre non négligeable de valeurs élevées (jusqu’à 120). La courbe noire lissée permet de mieux saisir la forme globale de la distribution : il n’y a pas un pic unique, mais une zone centrale où la concentration d’O3 est la plus fréquente ; de plus, les fréquences diminuent progressivement vers les extrêmes. **On peut donc conclure que la majorité des niveaux d’ozone restent dans une plage intermédiaire, mais des épisodes de faible ou de forte pollution existent.**
+(1) Dans l'histogramme de la concentration d’O~3~ on observe que les valeurs de O~3~ sont assez étalées : la plupart sont comprises entre 0 et environ 100, avec une majorité située autour de 55 à 70. La présence d'une petite pic, autour de 10 et 30, (près de 410 occurrences) à gauche et beaucoup de valeur sur la partie gauche de du pic centrale (près de 600 occurrences) indique que la distribution est légèrement asymétrique (légèrement étalée vers les fortes concentrations). On voit qu’il existe plusieurs valeurs faibles (près de zéro), mais aussi un nombre non négligeable de valeurs élevées (jusqu’à 120). La courbe noire lissée permet de mieux saisir la forme globale de la distribution : il n’y a pas un pic unique, mais une zone centrale où la concentration d’O~3~ est la plus fréquente ; de plus, les fréquences diminuent progressivement vers les extrêmes. **On peut donc conclure que la majorité des niveaux d’ozone restent dans une plage intermédiaire, mais des épisodes de faible ou de forte pollution existent.**
 
 (2) L'histogramme simple de température (premier graphique) montre que la majorité des températures sont regroupées entre 7°C et 20°C, avec un pic autour de 11°C. La distribution présente un seul pic principal et il y a une légère asymétrie vers les hautes valeurs, avec une traîne qui s’étend progressivement jusqu’à environ 40°C. Le second graphique, combinant histogramme et courbe de densité, met en évidence cette observation : la densité maximale est autour de 11°C, la distribution reste centrée mais s’étale davantage pour les valeurs élevées, traduisant des épisodes de chaleur moins fréquents mais bien présents. **Cette distribution suggère que les températures dans les données sont majoritairement modérées, mais des épisodes de températures élevées existent.**
 
@@ -297,11 +298,11 @@ grid.arrange(histPlot_pressVar3h, histPlot_pressVar3h_density,
 
 # Bivariée
 
-il s'agit ici de se poser la question sur la relation entre deux variables; l'une qui sera (automatiquement) o3 et d'autres variables qualitatives et quantitatives. on veut expliquer o3 on va se demander quelles conditions méteorologiques influencent sur la formation et le niveau d'o3; les variables de ces conditions meteorologiques etant: -la temperature -l'humidité -le niveau de pression -la pression variation à 3 heures -le point de rosee on a comme hypothese le fait que niveau de l'ozone (o3,qui est constitué de 3 atomes d'oxygene comme sa composition chimique l'indique,) puisse etre produit à partir d'un choc chimique provoqué par differents changements meteorologiques, qui permettrait à l'oxygene qui compose 21% de l'atmosphere terrestre, de se transformer en ozone ici, les variables explicatives seront toutes quantitatives. on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, o3; puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'o3, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'o3.
+il s'agit ici de se poser la question sur la relation entre deux variables; l'une qui sera (automatiquement) O~3~ et d'autres variables qualitatives et quantitatives. on veut expliquer O~3~ on va se demander quelles conditions méteorologiques influencent sur la formation et le niveau d'o3; les variables de ces conditions meteorologiques etant: -la temperature -l'humidité -le niveau de pression -la pression variation à 3 heures -le point de rosee on a comme hypothese le fait que niveau de l'ozone (O~3~, qui est constitué de 3 atomes d'oxygene comme sa composition chimique l'indique,) puisse etre produit à partir d'un choc chimique provoqué par differents changements meteorologiques, qui permettrait à l'oxygene qui compose 21% de l'atmosphere terrestre, de se transformer en ozone ici, les variables explicatives seront toutes quantitatives. on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, O~3~; puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'o3, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'O~3~.
 
-la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative). \## Conclusion
+la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative).
 
-Corrélation entre O₃ et les variables explicatives
+## Corrélation entre O₃ et les variables explicatives
 
 ```{r}
 vars <- c("temperature", "pression", "humidite", "point_de_rosee")
@@ -309,19 +310,23 @@ vars <- c("temperature", "pression", "humidite", "point_de_rosee")
 correlations <- sapply(data[vars], function(x) cor(x, data$O3, use = "complete.obs"))
 barplot(sort(abs(correlations), decreasing = TRUE),
         las = 2, col = "steelblue",
-        main = "Corrélation absolue avec O₃")
+        main = "Corrélation absolue avec O$_3$")
 
 ```
 
-Interpretation
+### Interpretation
 
-on remarque 2 categories ; 1)humidité/ temperature, 2)pression/point_de_rosee
+on remarque 2 categories :
 
-on fera attention ici, on est en correlation absolue, autrement dit on ne prends pas en compte le signe; ca peut etre une correlation positive ou negative; on remarque neamoins que les variables humidité et temperature sont les variables les plus correlees à o3 (c'est a dire que o3 evolue de la maniere la plus reguliere avec la variable humidité), et pression/ point de rose le sont moins.
+1) humidité/ temperature
 
-Il s'agira ensuite de voir quelles sont les variables les plus correlees positivement avec o3 grace à la regression lineaire, et voir la force de l'effet unitaire de chacunes de leur pentes.
+2) pression/point_de_rosee
 
-Régression linéaire simple, avec un filtre à la p-value de \<0.05
+on fera attention ici, on est en correlation absolue, autrement dit on ne prends pas en compte le signe; ca peut etre une correlation positive ou negative; on remarque neamoins que les variables humidité et temperature sont les variables les plus correlees à O~3~ (c'est a dire que O~3~ evolue de la maniere la plus reguliere avec la variable humidité), et pression/ point de rose le sont moins.
+
+Il s'agira ensuite de voir quelles sont les variables les plus correlees positivement avec O~3~ grace à la regression lineaire, et voir la force de l'effet unitaire de chacunes de leur pentes.
+
+## Régression linéaire simple, avec un filtre à la p-value de \<0.05
 
 ```{r}
 vars_significatives <- c()
@@ -339,17 +344,15 @@ for (v in vars) {
         "\n  - R² :", round(r_squared, 4), "\n")
   }
 }
-
-
 ```
 
-Interpretation
+### Interpretation
 
-Tout d'abord, on remarque que toutes les variables sont significatives car elles ont toutes une p-value inferieure à 0.05. On remarque ensuite que 2 variables sont positivement correlees à o3 ( temperature (et point de rose) et deux autres sont negativement coreelees à o3( humidite et pression).
+Tout d'abord, on remarque que toutes les variables sont significatives car elles ont toutes une p-value inferieure à 0.05. On remarque ensuite que 2 variables sont positivement correlees à O~3~ ( temperature (et point de rose) et deux autres sont negativement coreelees à O~3~( humidite et pression).
 
-Plus le niveau de la temperature et du point de rose augmente, plus celui d'o3 augmente( resp de 1.8 et 1.0). Plus l'humidité et la pression augmentent, plus le niveau d'o3 diminue( resp de 1.1 et 0.8); on fait ce constat en regardant la valeur de la pente des variables.
+Plus le niveau de la temperature et du point de rose augmente, plus celui d'O~3~ augmente (resp de 1.8 et 1.0). Plus l'humidité et la pression augmentent, plus le niveau d'O~3~ diminue (resp de 1.1 et 0.8); on fait ce constat en regardant la valeur de la pente des variables.
 
-Pour autant, la variable qui explique le plus la variabilité de o3 est l'humidité car son R\^2 est le plus élévé des variables avec une valeur de 0.38, suivi de la temperature avec une valeur de 0.22, c'est à dire que ces variables expliquent respectivement 38% et 22% de l'evolution des niveaux de o3.
+Pour autant, la variable qui explique le plus la variabilité de O~3~ est l'humidité car son R\^2 est le plus élévé des variables avec une valeur de 0.38, suivi de la temperature avec une valeur de 0.22, c'est à dire que ces variables expliquent respectivement 38% et 22% de l'evolution des niveaux de O~3~.
 
 Ainsi, le point de rosée est une variable secondaire , la pression a un effet modéré, la temperature est pertinente et explicative, et l'humidité est la variable la plus explicative ;
 
@@ -357,7 +360,7 @@ L'humidité est donc le meilleur prédicteur
 
 La regression multiple va permettre de voir comment evolue o3 en modifiant une variable mais en gardant les autres constantes.
 
-Régression Multiple: Modéliser o3 avec toutes les variables significatives en meme temps
+Régression Multiple: Modéliser O~3~ avec toutes les variables significatives en meme temps
 
 ```{r}
 model_multi <- lm(O3 ~  temperature + pression +humidite + point_de_rosee, data )
@@ -366,7 +369,7 @@ summary(model_multi)
 
 ```
 
-Tout d'abord, on constate qu'avec seulement ces quatre variables, on peut expliquer 45.8% de la variabilité de o3 en regardant le R\^2 , ce qui montre que ce modele est relativement solide.
+Tout d'abord, on constate qu'avec seulement ces quatre variables, on peut expliquer 45.8% de la variabilité de O~3~ en regardant le R² , ce qui montre que ce modele est relativement solide.
 
 On observe que, lorsque chaque variable — température, pression ou humidité — augmente individuellement, tout en maintenant les autres constantes, le niveau d’ozone diminue. Seul le point de rosée présente un effet inverse : à variables constantes, son augmentation entraîne une hausse du niveau d’ozone.
 
@@ -374,7 +377,7 @@ On remarque une difference par exemple entre la regression multiple et la regres
 
 ( A MODIFIER PEUT ETRE, vu que regression simple et multiple donnent les memes resultats, un separement, l'autre ttes ensembles ou pas? a revoir)
 
-ACP ( réduire la dimension et identifier les variables les plus explicatives)
+## ACP ( réduire la dimension et identifier les variables les plus explicatives)
 
 ```{r}
 # ACP sur les variables explicatives
@@ -387,8 +390,6 @@ summary(acp)
 plot(acp, type = "l", main = "Variance expliquée par les composantes principales")
 
 ```
-
-## ACP
 
 On fait ACP, une matrice de corrélation de toute les variables numériques et on va prendre les variable qui ont un plus grand rapport de corrélation avec O3.
 
@@ -413,3 +414,5 @@ correlation_matrix <- cor(numerical_data_raw)
 
 # print(correlation_matrix)
 ```
+
+# Conclusion
