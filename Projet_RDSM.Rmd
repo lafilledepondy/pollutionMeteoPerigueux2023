@@ -318,9 +318,9 @@ barplot(sort(abs(correlations), decreasing = TRUE),
 
 on remarque 2 categories :
 
-1) humidité/ temperature
+1)  humidité/ temperature
 
-2) pression/point_de_rosee
+2)  pression/point_de_rosee
 
 on fera attention ici, on est en correlation absolue, autrement dit on ne prends pas en compte le signe; ca peut etre une correlation positive ou negative; on remarque neamoins que les variables humidité et temperature sont les variables les plus correlees à O~3~ (c'est a dire que O~3~ evolue de la maniere la plus reguliere avec la variable humidité), et pression/ point de rose le sont moins.
 
