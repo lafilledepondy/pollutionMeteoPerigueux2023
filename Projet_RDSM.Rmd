@@ -76,16 +76,19 @@ data_raw <- data_raw %>% select(-PM2.5)
 pColonne <- ncol(data_raw) # mettons à jour le pColonne
 ```
 
-## Objectif de l'analyse et Choix des variables
-L’objectif de cette analyse est d’étudier la relation entre la concentration d’ozone (O~3~) et les conditions météorologiques à Périgueux sur une période d’un an. Nous nous interrogerons sur les facteurs susceptibles d’influencer la formation et le niveau d’O~3~, une molécule constituée de trois atomes d’oxygène, produite à la suite de réactions chimiques complexes impliquant différents paramètres atmosphériques. Plus précisément, nous chercherons à déterminer quelles conditions météorologiques (température, humidité, pression, variation de pression à 3 heures et point de rosée) ont le plus d’impact sur la concentration d’ozone. Dans cette approche, O~3~ sera la variable à expliquer, tandis que les variables explicatives  représenteront les caractéristiques physiques de l’atmosphère au cours de la période étudiée.
+## Objectif de l'analyse
+
+L’objectif de cette analyse est d’étudier la relation entre la concentration d’ozone (O~3~) et les conditions météorologiques à Périgueux sur une période d’un an. Nous nous interrogerons sur les facteurs susceptibles d’influencer la formation et le niveau d’O~3~, une molécule constituée de trois atomes d’oxygène, produite à la suite de réactions chimiques complexes impliquant différents paramètres atmosphériques. Plus précisément, nous chercherons à déterminer quelles conditions météorologiques (température, humidité, pression, variation de pression à 3 heures et point de rosée) ont le plus d’impact sur la concentration d’ozone. Dans cette approche, O~3~ sera la variable à expliquer, tandis que les variables explicatives représenteront les caractéristiques physiques de l’atmosphère au cours de la période étudiée.
+
+La problématiques : ***Quelles conditions météorologiques (température, humidité, pression, variation de pression à 3 heures et point de rosée, saison) influencent le plus la concentration d’ozone à Périgueux sur une période d’un an ?***
 
 ```{r}
 data <- data_raw |>
-  select(
-date_debut, jour, heure, O3, temperature, pression, pression_variation_3h, humidite, point_de_rosee)
+  select(date_debut, jour, heure, O3, temperature, pression, pression_variation_3h, humidite, point_de_rosee)
 ```
 
 On aujoute une colonne "saison" pour pouvoir faire des analyses saisonnières par la suite.
+
 ```{r}
 data <- data %>%
   mutate(date_time = as.POSIXct(date_debut, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -101,17 +104,23 @@ data <- data %>%
   select(-date_time, -month)
 ```
 
+On a maintenant un jeu de données `data` avec 10 colonnes. Les variables quantitatives sont : O3, temperature, pression, pression_variation_3h, humidite, et point_de_rosee. La variable heure peut être considérée comme quantitative ou qualitative ordinale. Enfin, les variables qualitatives sont jour et saison.
+
 # Univariée
+
 Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données afin d'avoir une idée sur la façon dont chaque valeurs sont réparties.
+
+En outre, les variables qualitatives (jour et saison) seront omises de cette analyse, leur répartition étant jugée homogène sur l'ensemble de l'année.
 
 ```{r}
 fill_color <- c("steelblue", "#7a937c", "#2e4045", "#a76168", "violet", "pink")
-plot_x <- c("O$_3$", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
+plot_x <- c("O3", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
 plot_y_count <- "Count"
 plot_y_density <- "Density"
 ```
 
 ## Boite à moustaches (Boxplots)
+
 ```{r}
 # 1. O3
 boxplot_o3 <- ggplot(data, aes(x = O3) ) +
@@ -151,11 +160,12 @@ grid.arrange(boxplot_o3,
              boxplot_pointRosee, 
              nrow=3, ncol=2)
 ```
+
 \vspace{-2em}
 
 ### Interprétation des boxplots
 
-(1) Le boxplot de l’ozone (O₃) montre une médiane autour de 55 µg/m³, centrée dans la boîte, ce qui traduit une distribution équilibrée et homogène. L’absence de valeurs aberrantes indique peu de fluctuations extrêmes, la majorité des concentrations étant comprises entre 30 et 70 µg/m³.
+(1) Le boxplot de l’ozone (O~3~) montre une médiane autour de 55 µg/m³, centrée dans la boîte, ce qui traduit une distribution équilibrée et homogène. L’absence de valeurs aberrantes indique peu de fluctuations extrêmes, la majorité des concentrations étant comprises entre 30 et 70 µg/m³.
 
 (2) Concernant la température, la médiane proche du centre suggère également une répartition symétrique des valeurs. Toutefois, plusieurs outliers, selon la règle des 1.5 fois l'écart interquartile. , apparaissent aux deux extrémités : températures très élevées (épisodes de canicule) et basses (vagues de froid). La moitié des observations se situe entre 9°C et 17°C, avec une médiane proche de 13°C. Ces épisodes extrêmes pourraient influencer la formation d’ozone, favorisée par les fortes chaleurs.
 
@@ -259,6 +269,7 @@ grid.arrange(histPlot_pressVar3h, histPlot_pressVar3h_density,
              histPlot_pointRosee, histPlot_pointRosee_density, 
              nrow=3, ncol=2)
 ```
+
 \vspace{-2em}
 
 ### Interprétation des histogrammes
@@ -287,8 +298,10 @@ la comparaison des moyennes peut tout à fait relever de la statistique bivarié
 vars <- c("temperature", "pression", "humidite", "point_de_rosee")
 
 correlations <- sapply(data[vars], function(x) cor(x, data$O3, use = "complete.obs"))
-barplot(sort(abs(correlations), decreasing = TRUE), las = 2, col = "steelblue", main = "Corrélation absolue avec O3", cex.names = 0.7)
+barplot(sort(abs(correlations), decreasing = TRUE), las = 2, col = "steelblue", 
+        main = "Corrélation absolue avec O3", cex.names = 0.7)
 ```
+
 \vspace{-2em}
 
 ### Interpretation
@@ -362,9 +375,11 @@ summary(acp) # Résumé des composantes
 
 plot(acp, type = "l", main = "Variance expliquée par les composantes principales") # Graphique de la variance expliquée
 ```
+
 \vspace{-5em}
 
 ## Heatmap des corrélations
+
 ```{r, fig.width=4, fig.height=5}
 numerical_vars <-names(data)[sapply(data, is.numeric)] 
 numerical_data_raw <- data[sapply(data, is.numeric)] # Identifie les variables numeriques
@@ -372,6 +387,7 @@ numerical_data_raw <- data[sapply(data, is.numeric)] # Identifie les variables n
 correlation_matrix <- cor(numerical_data_raw)
 corrplot(correlation_matrix, method = "color", type = "upper", addCoef.col = "black", tl.col = "black", tl.cex = 0.7, number.cex = 0.6)
 ```
+
 \vspace{-5em}
 
 Le heatmap révèle les relations entre couples de variables. Par exemple, une forte corrélation positive entre la température et le point de rosée indique que ces deux paramètres évoluent ensemble. Inversement, la corrélation négative entre O3 et humidité suggère que l’ozone tend à diminuer lorsque l’humidité augmente.
