@@ -62,13 +62,13 @@ Le jeu de données contient des variables de différents types : numériques (do
 
 ## Cleaning des données
 
-On regarde d'abord si il y a des valeurs manquantes dans le jeu de données.
+On regarde d'abord s'il y a des valeurs manquantes dans le jeu de données.
 
 ```{r}
 # data_raw$PM2.5 == NA # que des `NA` partout
 ```
 
-On voit que la colonne 'PM2.5' contient que de valeurs manquantes (NA). Nous allons donc pas l'inclure dans notre analyse.
+On voit que la colonne 'PM2.5' contient que des valeurs manquantes (NA). Nous n'allons donc pas l'inclure dans notre analyse.
 
 ```{r}
 data_raw <- data_raw %>% select(-PM2.5)
@@ -78,13 +78,14 @@ pColonne <- ncol(data_raw) # mettons à jour le pColonne
 
 ## Objectif de l'analyse
 
-L’objectif de cette analyse est d’étudier la relation entre la concentration d’ozone (O~3~) et les conditions météorologiques à Périgueux sur une période d’un an. Nous nous interrogerons sur les facteurs susceptibles d’influencer la formation et le niveau d’O~3~, une molécule constituée de trois atomes d’oxygène, produite à la suite de réactions chimiques complexes impliquant différents paramètres atmosphériques. Plus précisément, nous chercherons à déterminer quelles conditions météorologiques (température, humidité, pression, variation de pression à 3 heures et point de rosée) ont le plus d’impact sur la concentration d’ozone. Dans cette approche, O~3~ sera la variable à expliquer, tandis que les variables explicatives représenteront les caractéristiques physiques de l’atmosphère au cours de la période étudiée.
+L’objectif de cette analyse est d’étudier la relation entre la concentration d’ozone (O~3~) et les conditions météorologiques à Périgueux sur une période d’un an. Nous nous interrogerons sur les facteurs susceptibles d’influencer la formation et le niveau d’O~3~, une molécule constituée de trois atomes d’oxygène, produite à la suite de réactions chimiques complexes impliquant différents paramètres atmosphériques. Plus précisément, nous chercherons à déterminer quelles conditions météorologiques (température, humidité, pression, variation de pression à 3 heures (pas de variable "variation à 3 heures" en bivariée) et point de rosée) ont le plus d’impact sur la concentration d’ozone. Dans cette approche, O~3~ sera la variable à expliquer, tandis que les variables explicatives représenteront les caractéristiques physiques de l’atmosphère au cours de la période étudiée. Nous utiliserons aussi une variable qualitative, season.
 
 La problématiques : ***Quelles conditions météorologiques (température, humidité, pression, variation de pression à 3 heures et point de rosée, saison) influencent le plus la concentration d’ozone à Périgueux sur une période d’un an ?***
 
 ```{r}
 data <- data_raw |>
-  select(date_debut, jour, heure, O3, temperature, pression, pression_variation_3h, humidite, point_de_rosee)
+  select(date_debut, jour, heure, O3, temperature, pression, pression_variation_3h, humidite, 
+         point_de_rosee)
 ```
 
 On aujoute une colonne "saison" pour pouvoir faire des analyses saisonnières par la suite.
@@ -104,17 +105,18 @@ data <- data %>%
   select(-date_time, -month)
 ```
 
-On a maintenant un jeu de données `data` avec 10 colonnes. Les variables quantitatives sont : O3, temperature, pression, pression_variation_3h, humidite, et point_de_rosee. La variable heure peut être considérée comme quantitative ou qualitative ordinale. Enfin, les variables qualitatives sont jour et saison.
+On a maintenant un jeu de données `data` avec 10 colonnes. Les variables quantitatives sont : O3, temperature, pression, pression_variation_3h, humidite, et point_de_rosee. La variable heure peut être considérée comme quantitative ou qualitative ordinale. Enfin, les variables qualitatives sont jour et season.
 
 # Univariée
 
-Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données afin d'avoir une idée sur la façon dont chaque valeurs sont réparties.
+Dans un premier temps, étudions les mesures statistiques et la distribution de chaque variable de notre jeu de données afin d'avoir une idée sur la façon dont chaques valeurs sont réparties.
 
 En outre, les variables qualitatives (jour et saison) seront omises de cette analyse, leur répartition étant jugée homogène sur l'ensemble de l'année.
 
 ```{r}
 fill_color <- c("steelblue", "#7a937c", "#2e4045", "#a76168", "violet", "pink")
-plot_x <- c("O3", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)", "Ponit de Rosée")
+plot_x <- c("O3", "Température (°C)", "Pression (hPa)", "Pression (hPa/3h)", "Humidité (g/m³)",
+            "Point de Rosée")
 plot_y_count <- "Count"
 plot_y_density <- "Density"
 ```
@@ -167,9 +169,9 @@ grid.arrange(boxplot_o3,
 
 (1) Le boxplot de l’ozone (O~3~) montre une médiane autour de 55 µg/m³, centrée dans la boîte, ce qui traduit une distribution équilibrée et homogène. L’absence de valeurs aberrantes indique peu de fluctuations extrêmes, la majorité des concentrations étant comprises entre 30 et 70 µg/m³.
 
-(2) Concernant la température, la médiane proche du centre suggère également une répartition symétrique des valeurs. Toutefois, plusieurs outliers, selon la règle des 1.5 fois l'écart interquartile. , apparaissent aux deux extrémités : températures très élevées (épisodes de canicule) et basses (vagues de froid). La moitié des observations se situe entre 9°C et 17°C, avec une médiane proche de 13°C. Ces épisodes extrêmes pourraient influencer la formation d’ozone, favorisée par les fortes chaleurs.
+(2) Concernant la température, la médiane proche du centre suggère également une répartition symétrique des valeurs. Toutefois, plusieurs "outliers", selon la règle des 1.5 fois l'écart interquartile. , apparaissent aux deux extrémités : températures très élevées (épisodes de canicule) et basses (vagues de froid). La moitié des observations se situe entre 9°C et 17°C, avec une médiane proche de 13°C. Ces épisodes extrêmes pourraient influencer la formation d’ozone, favorisée par les fortes chaleurs.
 
-(3) Le boxplot de la pression atmosphérique révèle une boîte resserrée autour de 1018 hPa, donc peu de variabilité. Quelques outliers sont présents entre 980 et 1040 hPa, reflétant des épisodes inhabituels possiblement liés à des systèmes météorologiques extrêmes (anticyclones ou dépressions). Il serait intéressant d’examiner si ces fluctuations de pression influencent les niveaux d’ozone.
+(3) Le boxplot de la pression atmosphérique révèle une boîte resserrée autour de 1018 hPa, donc peu de variabilité. Quelques "outliers" sont présents entre 980 et 1040 hPa, reflétant des épisodes inhabituels possiblement liés à des systèmes météorologiques extrêmes (anticyclones ou dépressions). Il serait intéressant d’examiner si ces fluctuations de pression influencent les niveaux d’ozone.
 
 (4) La variation de pression sur 3 heures présente une médiane à 0, signe d’une stabilité générale à court terme. Néanmoins, la présence d’outliers dans les deux directions indique des variations ponctuellement marquées. La question du lien entre variation de pression et la O~3~ se pose de façon similaire à celle de la pression atmosphérique.
 
@@ -274,23 +276,23 @@ grid.arrange(histPlot_pressVar3h, histPlot_pressVar3h_density,
 
 ### Interprétation des histogrammes
 
-(1) Dans l'histogramme de la concentration d’O~3~ on observe que les valeurs de O~3~ sont assez étalées : la plupart sont comprises entre 0 et environ 100, avec une majorité située autour de 55 à 70. La présence d'une petite pic, autour de 10 et 30, (près de 410 occurrences) à gauche et beaucoup de valeur sur la partie gauche de du pic centrale (près de 600 occurrences) indique que la distribution est légèrement asymétrique (légèrement étalée vers les fortes concentrations). On voit qu’il existe plusieurs valeurs faibles (près de zéro), mais aussi un nombre non négligeable de valeurs élevées (jusqu’à 120). La courbe noire lissée permet de mieux saisir la forme globale de la distribution : il n’y a pas un pic unique, mais une zone centrale où la concentration d’O~3~ est la plus fréquente ; de plus, les fréquences diminuent progressivement vers les extrêmes. **On peut donc conclure que la majorité des niveaux d’ozone restent dans une plage intermédiaire, mais des épisodes de faible ou de forte pollution existent.**
+(1) Dans l'histogramme de la concentration d’O~3~ on observe que les valeurs de O~3~ sont assez étalées : la plupart sont comprises entre 0 et environ 100, avec une majorité située autour de 55 à 70. La présence d'un petit pic, autour de 10 et 30, (près de 410 occurrences) à gauche et beaucoup de valeurs sur la partie gauche du pic central (près de 600 occurrences) indique que la distribution est légèrement asymétrique (légèrement étalée vers les fortes concentrations). On voit qu’il existe plusieurs valeurs faibles (près de zéro), mais aussi un nombre non négligeable de valeurs élevées (jusqu’à 120). La courbe noire lissée permet de mieux saisir la forme globale de la distribution : il n’y a pas un pic unique, mais une zone centrale où la concentration d’O~3~ est la plus fréquente ; de plus, les fréquences diminuent progressivement vers les extrêmes. **On peut donc conclure que la majorité des niveaux d’ozone restent dans une plage intermédiaire, mais des épisodes de faible ou de forte pollution existent.**
 
 (2) L'histogramme simple de température (premier graphique) montre que la majorité des températures sont regroupées entre 7°C et 20°C, avec un pic autour de 11°C. La distribution présente un seul pic principal et il y a une légère asymétrie vers les hautes valeurs, avec une traîne qui s’étend progressivement jusqu’à environ 40°C. Le second graphique, combinant histogramme et courbe de densité, met en évidence cette observation : la densité maximale est autour de 11°C, la distribution reste centrée mais s’étale davantage pour les valeurs élevées, traduisant des épisodes de chaleur moins fréquents mais bien présents. **Cette distribution suggère que les températures dans les données sont majoritairement modérées, mais des épisodes de températures élevées existent.**
 
 (3) L'histogramme simple de pression (premier graphique) met en avant que la majorité des valeurs de pression sont regroupées entre 1000 et 1025 hPa, avec un pic de fréquence autour de 1015 hPa. La distribution présente un unique sommet central et une symétrie globale, mais une traîne qui s'étend lentement vers les valeurs extrêmes, aussi bien pour les pressions basses que hautes. Le second graphique, combinant histogramme et courbe de densité, confirme cette impression : la densité maximale coïncide avec le pic de l'histogramme, et la courbe suit une forme quasi-gaussienne centrée autour de 1015 hPa, mais avec une légère dispersion aux deux extrémités. **Cette distribution suggère que les pressions atmosphériques dans les données sont essentiellement standards, bien que l'on observe parfois des épisodes de pressions basses ou hautes.**
 
-(4) L'histogramme simple de la variation de pression sur 3 heures (premier graphique) montre que la majorité des variations sont très faibles, centrées autour de 0 hPa/3h, avec un pic de fréquence très marqué à cette valeur. La distribution présente une forte concentration des valeurs proches de zéro, indiquant que la pression reste généralement stable sur de courtes périodes. Cependant, on observe aussi une traîne qui s'étend vers les variations plus importantes, tant positives que négatives, bien que ces occurrences soient nettement moins fréquentes. Le second graphique, combinant histogramme et courbe de densité, confirme cette impression : la densité maximale est très proche à zéro, et la courbe descend rapidement pour les variations plus extrêmes. **Cette distribution suggère que les variations de pression sont généralement minimes, mais des épisodes de changements brusques existent.**
+(4) L'histogramme simple de la variation de pression sur 3 heures (premier graphique) montre que la majorité des variations sont très faibles, centrées autour de 0 hPa/3h, avec un pic de fréquence très marqué à cette valeur. La distribution présente une forte concentration des valeurs proches de zéro, indiquant que la pression reste généralement stable sur de courtes périodes. Cependant, on observe aussi une traînée qui s'étend vers les variations plus importantes, tant positives que négatives, bien que ces occurrences soient nettement moins fréquentes. Le second graphique, combinant histogramme et courbe de densité, confirme cette impression : la densité maximale est très proche à zéro, et la courbe descend rapidement pour les variations plus extrêmes. **Cette distribution suggère que les variations de pression sont généralement minimes, mais des épisodes de changements brusques existent.**
 
-(5) L'histogramme simple de l'humidité (premier graphique) révèle que la majorité des valeurs d'humidité sont élevées, principalement entre 80% et 100%, avec un pic marqué autour de 95%. La distribution est asymétrique, avec une concentration nette vers les hautes valeurs et une traîne qui s'étend vers les valeurs plus basses. Le second graphique, combinant histogramme et courbe de densité, confirme cette observation : la densité maximale coïncide avec le pic de l'histogramme, et la courbe montre une forte inclinaison vers les hautes humidités. **Cette distribution suggère que l'air dans les données est majoritairement humide, bien que des épisodes d'air sec soient également présents.**
+(5) L'histogramme simple de l'humidité (premier graphique) révèle que la majorité des valeurs d'humidité sont élevées, principalement entre 80% et 100%, avec un pic marqué autour de 95%. La distribution est asymétrique, avec une concentration nette vers les hautes valeurs et une traînée qui s'étend vers les valeurs plus basses. Le second graphique, combinant histogramme et courbe de densité, confirme cette observation : la densité maximale coïncide avec le pic de l'histogramme, et la courbe montre une forte inclinaison vers les hautes humidités. **Cette distribution suggère que l'air dans les données est majoritairement humide, bien que des épisodes d'air sec soient également présents.**
 
-(6) L'histogramme simple du point de rosée (premier graphique) indique que la majorité des valeurs se situent entre 5°C et 20°C, avec un pic autour de 10°C. La distribution est relativement symétrique autour de ce pic, mais on observe une légère traîne vers les valeurs plus élevées ou faible, inférieures à 0°C ou supérieures à 20°C. Sur le second graph, la densité maximale correspond au pic de l'histogramme, et la courbe suit une forme quasi-gaussienne centrée autour de 10°C. **Cette distribution suggère que le point de rosée dans les données est généralement modéré, bien que quelques épisodes d'air très humide ou très sec.**
+(6) L'histogramme simple du point de rosée (premier graphique) indique que la majorité des valeurs se situent entre 5°C et 20°C, avec un pic autour de 10°C. La distribution est relativement symétrique autour de ce pic, mais on observe une légère traînée vers les valeurs plus élevées ou faibles, inférieures à 0°C ou supérieures à 20°C. Sur le second graphe, la densité maximale correspond au pic de l'histogramme, et la courbe suit une forme quasi-gaussienne centrée autour de 10°C. **Cette distribution suggère que le point de rosée dans les données est généralement modéré, bien que quelques épisodes d'air très humide ou très sec.**
 
 # Bivariée
 
-on va d'abord chercher la correlation entre les variables explicatives et notre variable à expliquer, O~3~; puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'O~3~, alors on fera une regression multiple avant de voir grace à l'acp, quelles variables permettent d'expliquer tant de pourcents du niveau de l'O~3~.
+On va d'abord chercher la corrélation entre les variables explicatives et notre variable à expliquer, O~3~; puis il s'agira de modeliser cette dependance à l'aide de la regression lineaire. Si plusieurs variables influencent le niveau d'O~3~, alors on fera une regression multiple avant de voir grace . La variable pression_3_heures est supprimée dans cette partie pour des raisons d'interpretation.
 
-la comparaison des moyennes peut tout à fait relever de la statistique bivariée, à condition qu’elle implique deux variables : une variable explicative (généralement qualitative) et une variable à expliquer (quantitative).
+Il s'agira aussi de manipuler ici une variable qualitative, season, avec l'ozone.
 
 ## Corrélation entre O~3~ et les variables explicatives
 
@@ -304,7 +306,7 @@ barplot(sort(abs(correlations), decreasing = TRUE), las = 2, col = "steelblue",
 
 \vspace{-2em}
 
-### Interpretation
+### Interpretation variables explicatives (numériques)
 
 on remarque 2 categories :
 
@@ -312,9 +314,24 @@ on remarque 2 categories :
 
 2)  pression/point_de_rosee
 
-on fera attention ici, on est en correlation absolue, autrement dit on ne prends pas en compte le signe; ca peut etre une correlation positive ou negative; on remarque neamoins que les variables humidité et temperature sont les variables les plus correlees à O~3~ (c'est a dire que O~3~ evolue de la maniere la plus reguliere avec la variable humidité), et pression/ point de rose le sont moins.
+On fera attention ici, on est en correlation absolue, autrement dit on ne prend pas en compte le signe; ça peut être une corrélation positive ou négative; on remarque néamoins que les variables humidité et temperature sont les variables les plus correlées à O~3~ (c'est à dire que O~3~ évolue de la maniere la plus regulière avec la variable humidité), et pression/ point de rose le sont moins.
 
-Il s'agira ensuite de voir quelles sont les variables les plus correlees positivement avec O~3~ grace à la regression lineaire, et voir la force de l'effet unitaire de chacunes de leur pentes.
+Il s'agira ensuite de voir quelles sont les variables les plus correlées positivement avec O~3~ grâce à la régression lineaire, et voir la force de l'effet unitaire de chacunes de leur pentes.
+
+## Corrélation entre O~3~ et une variable déscriptive, season
+
+```{r}
+lien_season_o3 <- as.factor(data$season)
+boxplot(O3 ~ season, data = data,
+        main = "Concentration d'O3 selon le jour",
+        xlab = "Jour", ylab = "O3 (µg/m³)")
+
+
+```
+
+## Interprétation variable descriptive ( avec la variable "season")
+
+On peut distinguer deux groupes de saisons: le printemps et l'été, l'automne et l'hiver; En effet, on remarque que 75% des échantillons prélevés au printemps (resp été) ont des valeurs inferieures à 80 ug/m\^3 (resp environ 80) tandis que les échantillons prélévés en automne (resp hiver) montrent que 75% des données sont inferieures à 60 ug/m\^3 ( resp environ 60). On remarque aussi que la médiane est centrée en été, ce qui signifie que les données sont bien équilibrées entre les quartilles, tandis que la médiane n'est pas centrée pour le reste des saisons, c'est à dire que les données sont davantages concentrées dans le troisième quartile. On remarque aussi qu'il n'y a pas de point isolé.
 
 ## Régression linéaire simple, avec un filtre à la p-value de \<0.05
 
@@ -338,7 +355,7 @@ for (v in vars) {
 
 ### Interpretation
 
-Tout d'abord, on remarque que toutes les variables sont significatives car elles ont toutes une p-value inferieure à 0.05. On remarque ensuite que 2 variables sont positivement correlees à O~3~ ( temperature (et point de rose) et deux autres sont negativement coreelees à O~3~( humidite et pression).
+Tout d'abord, on remarque que toutes les variables sont significatives car elles ont toutes une p-value inferieure à 0.05. On remarque ensuite que 2 variables sont positivement correlées à O~3~ ( temperature (et point de rose) et deux autres sont negativement coreelées à O~3~( humidite et pression).
 
 Plus le niveau de la temperature et du point de rose augmente, plus celui d'O~3~ augmente (resp de 1.8 et 1.0). Plus l'humidité et la pression augmentent, plus le niveau d'O~3~ diminue (resp de 1.1 et 0.8); on fait ce constat en regardant la valeur de la pente des variables.
 
@@ -348,9 +365,23 @@ Ainsi, le point de rosée est une variable secondaire , la pression a un effet m
 
 L'humidité est donc le meilleur prédicteur
 
-La regression multiple va permettre de voir comment evolue o3 en modifiant une variable mais en gardant les autres constantes.
+La regression multiple va permettre de voir comment evolue O~3~ en modifiant une variable mais en gardant les autres constantes.
 
-Régression Multiple: Modéliser O~3~ avec toutes les variables significatives en meme temps
+## Test Anova pour la variable descriptive Season
+
+L’ANOVA teste si les moyennes d’O3 diffèrent significativement selon les saisons ( season):
+
+```{r}
+anova_result <- aov(O3 ~ season, data )
+summary(anova_result)
+
+```
+
+## Interpretation d'Anova
+
+En regardant la F-value qui correspond à la statistique de Fisher, c'est à dire un quotient entre la variance des saisons et la dispersion des valeurs d'O~3~ à l'interieur de chaque saison: cette valeur étant bien superieure à 1, il y a un grand ecart de moyenne entre les saisons. De plus, Pr(\>F) \< 2e-16, ce qui signifie que l'on rejette l'hypothese nulle H~0~ (H~0~= Toutes les moyennes des saisons sont egales entre elles), ce qui confirme que les moyennes d'O~3~ diffèrent entre les saisons.
+
+## Régression Multiple: Modéliser O~3~ avec toutes les variables significatives en meme temps
 
 ```{r}
 model_multi <- lm(O3 ~  temperature + pression +humidite + point_de_rosee, data )
@@ -358,23 +389,23 @@ model_multi <- lm(O3 ~  temperature + pression +humidite + point_de_rosee, data 
 summary(model_multi)
 ```
 
-Tout d'abord, on constate qu'avec seulement ces quatre variables, on peut expliquer 45.8% de la variabilité de O~3~ en regardant le R² , ce qui montre que ce modele est relativement solide.
+Tout d'abord, on constate qu'avec seulement ces quatre variables, on peut expliquer 45.8% de la variabilité de O~3~ en regardant le R²(multiple R-squared) , ce qui montre que ce modèle est relativement solide.
 
 On observe que, lorsque chaque variable — température, pression ou humidité — augmente individuellement, tout en maintenant les autres constantes, le niveau d’ozone diminue. Seul le point de rosée présente un effet inverse : à variables constantes, son augmentation entraîne une hausse du niveau d’ozone.
 
-On remarque une difference par exemple entre la regression multiple et la regression simple de la variable temperature; ici elle a une pente negative car cette pente est calculée en gardant les autres variables comme etant des constantes, alors que dans la regression simple , le niveau de pente est decrit individuellement, prenant en compte qu'une variable et l'ozone.
+On remarque une différence par exemple entre la régression multiple et la régression simple de la variable temperature; ici elle a une pente négative car cette pente est calculée en gardant les autres variables comme etant des constantes, alors que dans la régression simple le niveau de pente est décrit individuellement, prenant en compte qu'une variable et l'ozone.
 
-( A MODIFIER PEUT ETRE, vu que regression simple et multiple donnent les memes resultats, un separement, l'autre ttes ensembles ou pas? a revoir)
+## Calcul de Eta\^2
 
-# ACP ( réduire la dimension et identifier les variables les plus explicatives)
+```{r}
+library(lsr)
+etaSquared(anova_result)
 
-```{r, fig.width=7, fig.height=4, out.width='70%'}
-acp <- prcomp(data[vars], scale. = TRUE) # ACP sur les variables explicatives
-
-summary(acp) # Résumé des composantes
-
-plot(acp, type = "l", main = "Variance expliquée par les composantes principales") # Graphique de la variance expliquée
 ```
+
+## Interpretation de Eta\^2
+
+La valeur de Eta\^2 est proche de 0, donc la variable season ,qui est une variable qualitative, n'explique pas ou très peu la variation de O~3~.
 
 \vspace{-5em}
 
@@ -382,14 +413,29 @@ plot(acp, type = "l", main = "Variance expliquée par les composantes principale
 
 ```{r, fig.width=4, fig.height=5}
 numerical_vars <-names(data)[sapply(data, is.numeric)] 
-numerical_data_raw <- data[sapply(data, is.numeric)] # Identifie les variables numeriques
-
+numerical_data_raw <- data[, sapply(data, is.numeric)] # Identifie les variables numeriques
 correlation_matrix <- cor(numerical_data_raw)
 corrplot(correlation_matrix, method = "color", type = "upper", addCoef.col = "black", tl.col = "black", tl.cex = 0.7, number.cex = 0.6)
 ```
 
 \vspace{-5em}
 
-Le heatmap révèle les relations entre couples de variables. Par exemple, une forte corrélation positive entre la température et le point de rosée indique que ces deux paramètres évoluent ensemble. Inversement, la corrélation négative entre O3 et humidité suggère que l’ozone tend à diminuer lorsque l’humidité augmente.
+```{r}
+library(corrplot)
+
+numerical_data_raw <- data[, sapply(data, is.numeric)]  # Sélection des colonnes numériques
+correlation_matrix <- cor(numerical_data_raw, use = "complete.obs")  # Corrélation sans NA
+
+corrplot(correlation_matrix,
+         method = "color",
+         type = "upper",
+         addCoef.col = "black",
+         tl.col = "black",
+         tl.cex = 0.7,
+         number.cex = 0.6)
+
+```
+
+Le heatmap révèle les relations entre couples de variables. Par exemple, une forte corrélation positive entre la température et le point de rosée indique que ces deux paramètres évoluent ensemble. Inversement, la corrélation négative entre O~3~ et humidité suggère que l’ozone tend à diminuer lorsque l’humidité augmente.
 
 # Conclusion
