@@ -5,9 +5,10 @@ author:
   - "Matthieu SALLE"
   - "Gayathiri RAVENDIRANE"
 output:
+  html_document: default
+  rmarkdown: default
   pdf_document: 
       latex_engine: xelatex
-  rmarkdown: default
 number_sections: true
 ---
 
