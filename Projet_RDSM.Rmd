@@ -22,6 +22,7 @@ library(ggplot2)
 library(corrplot)
 library(gridExtra) 
 library(lubridate)
+library(lsr)
 ```
 
 ```{r}
@@ -105,7 +106,7 @@ data <- data %>%
   select(-date_time, -month)
 ```
 
-On a maintenant un jeu de données `data` avec 10 colonnes. Les variables quantitatives sont : O3, temperature, pression, pression_variation_3h, humidite, et point_de_rosee. La variable heure peut être considérée comme quantitative ou qualitative ordinale. Enfin, les variables qualitatives sont jour et season.
+On a maintenant un jeu de données `data` avec 10 colonnes. Les variables quantitatives sont : O~3~, température, pression, pression_variation_3h, humidite, et point_de_rosee. La variable heure peut être considérée comme quantitative ou qualitative ordinale. Enfin, les variables qualitatives sont jour et season.
 
 # Univariée
 
@@ -308,11 +309,11 @@ barplot(sort(abs(correlations), decreasing = TRUE), las = 2, col = "steelblue",
 
 ### Interpretation variables explicatives (numériques)
 
-on remarque 2 categories :
+On remarque 2 categories :
 
-1)  humidité/ temperature
+1)  humidité / temperature
 
-2)  pression/point_de_rosee
+2)  pression / point_de_rosee
 
 On fera attention ici, on est en correlation absolue, autrement dit on ne prend pas en compte le signe; ça peut être une corrélation positive ou négative; on remarque néamoins que les variables humidité et temperature sont les variables les plus correlées à O~3~ (c'est à dire que O~3~ évolue de la maniere la plus regulière avec la variable humidité), et pression/ point de rose le sont moins.
 
@@ -320,16 +321,15 @@ Il s'agira ensuite de voir quelles sont les variables les plus correlées positi
 
 ## Corrélation entre O~3~ et une variable déscriptive, season
 
-```{r}
+```{r fig.width=4, fig.height=3}
 lien_season_o3 <- as.factor(data$season)
 boxplot(O3 ~ season, data = data,
         main = "Concentration d'O3 selon le jour",
-        xlab = "Jour", ylab = "O3 (µg/m³)")
-
-
+        xlab = "Jour", ylab = "O3 (µg/m³)", col = c("lightblue", "lightgreen", "orange", "lightgrey"), cex.names = 0.7)
 ```
+\vspace{-2em}
 
-## Interprétation variable descriptive ( avec la variable "season")
+### Interprétation variable descriptive ( avec la variable "season")
 
 On peut distinguer deux groupes de saisons: le printemps et l'été, l'automne et l'hiver; En effet, on remarque que 75% des échantillons prélevés au printemps (resp été) ont des valeurs inferieures à 80 ug/m\^3 (resp environ 80) tandis que les échantillons prélévés en automne (resp hiver) montrent que 75% des données sont inferieures à 60 ug/m\^3 ( resp environ 60). On remarque aussi que la médiane est centrée en été, ce qui signifie que les données sont bien équilibrées entre les quartilles, tandis que la médiane n'est pas centrée pour le reste des saisons, c'est à dire que les données sont davantages concentrées dans le troisième quartile. On remarque aussi qu'il n'y a pas de point isolé.
 
@@ -353,7 +353,7 @@ for (v in vars) {
 }
 ```
 
-### Interpretation
+### Interprétation de la régression linéaire
 
 Tout d'abord, on remarque que toutes les variables sont significatives car elles ont toutes une p-value inferieure à 0.05. On remarque ensuite que 2 variables sont positivement correlées à O~3~ ( temperature (et point de rose) et deux autres sont negativement coreelées à O~3~( humidite et pression).
 
@@ -369,15 +369,15 @@ La regression multiple va permettre de voir comment evolue O~3~ en modifiant une
 
 ## Test Anova pour la variable descriptive Season
 
-L’ANOVA teste si les moyennes d’O3 diffèrent significativement selon les saisons ( season):
+L’ANOVA teste si les moyennes d’O~3~ diffèrent significativement selon les saisons ( season):
 
 ```{r}
-anova_result <- aov(O3 ~ season, data )
+anova_result <- aov(O3 ~ season, data)
 summary(anova_result)
 
 ```
 
-## Interpretation d'Anova
+### Interpretation d'ANOVA
 
 En regardant la F-value qui correspond à la statistique de Fisher, c'est à dire un quotient entre la variance des saisons et la dispersion des valeurs d'O~3~ à l'interieur de chaque saison: cette valeur étant bien superieure à 1, il y a un grand ecart de moyenne entre les saisons. De plus, Pr(\>F) \< 2e-16, ce qui signifie que l'on rejette l'hypothese nulle H~0~ (H~0~= Toutes les moyennes des saisons sont egales entre elles), ce qui confirme que les moyennes d'O~3~ diffèrent entre les saisons.
 
@@ -389,53 +389,40 @@ model_multi <- lm(O3 ~  temperature + pression +humidite + point_de_rosee, data 
 summary(model_multi)
 ```
 
-Tout d'abord, on constate qu'avec seulement ces quatre variables, on peut expliquer 45.8% de la variabilité de O~3~ en regardant le R²(multiple R-squared) , ce qui montre que ce modèle est relativement solide.
+Tout d'abord, on constate qu'avec seulement ces quatre variables, on peut expliquer 45.8% de la variabilité de O~3~ en regardant le R²(multiple R-squared), ce qui montre que ce modèle est relativement solide.
 
 On observe que, lorsque chaque variable — température, pression ou humidité — augmente individuellement, tout en maintenant les autres constantes, le niveau d’ozone diminue. Seul le point de rosée présente un effet inverse : à variables constantes, son augmentation entraîne une hausse du niveau d’ozone.
 
 On remarque une différence par exemple entre la régression multiple et la régression simple de la variable temperature; ici elle a une pente négative car cette pente est calculée en gardant les autres variables comme etant des constantes, alors que dans la régression simple le niveau de pente est décrit individuellement, prenant en compte qu'une variable et l'ozone.
 
-## Calcul de Eta\^2
+## Calcul de Eta²
 
 ```{r}
-library(lsr)
 etaSquared(anova_result)
 
 ```
 
-## Interpretation de Eta\^2
+### Interpretation de Eta²
 
-La valeur de Eta\^2 est proche de 0, donc la variable season ,qui est une variable qualitative, n'explique pas ou très peu la variation de O~3~.
-
-\vspace{-5em}
+La valeur de Eta² est proche de 0, donc la variable season ,qui est une variable qualitative, n'explique pas ou très peu la variation de O~3~.
 
 ## Heatmap des corrélations
 
-```{r, fig.width=4, fig.height=5}
-numerical_vars <-names(data)[sapply(data, is.numeric)] 
+```{r, fig.width=4, fig.height=4}
 numerical_data_raw <- data[, sapply(data, is.numeric)] # Identifie les variables numeriques
-correlation_matrix <- cor(numerical_data_raw)
-corrplot(correlation_matrix, method = "color", type = "upper", addCoef.col = "black", tl.col = "black", tl.cex = 0.7, number.cex = 0.6)
+correlation_matrix <- cor(numerical_data_raw, use = "complete.obs")
+corrplot(correlation_matrix, method = "color", type = "upper", addCoef.col = "black", 
+         tl.col = "black", tl.cex = 0.7, number.cex = 0.6)
 ```
 
-\vspace{-5em}
+\vspace{-2em}
 
-```{r}
-library(corrplot)
-
-numerical_data_raw <- data[, sapply(data, is.numeric)]  # Sélection des colonnes numériques
-correlation_matrix <- cor(numerical_data_raw, use = "complete.obs")  # Corrélation sans NA
-
-corrplot(correlation_matrix,
-         method = "color",
-         type = "upper",
-         addCoef.col = "black",
-         tl.col = "black",
-         tl.cex = 0.7,
-         number.cex = 0.6)
-
-```
+### Interprétation du heatmap
 
 Le heatmap révèle les relations entre couples de variables. Par exemple, une forte corrélation positive entre la température et le point de rosée indique que ces deux paramètres évoluent ensemble. Inversement, la corrélation négative entre O~3~ et humidité suggère que l’ozone tend à diminuer lorsque l’humidité augmente.
 
 # Conclusion
+
+L’analyse des données météorologiques et de la concentration d’O~3~ à Périgueux sur une période d’un an a permis de mettre en évidence plusieurs relations significatives. Parmi les variables étudiées, on observe que O~3~ peut être influencé par l'humidité et température. Ceci dit lorsque l’humidité augmente, la concentration d’ozone diminue. La régression linéaire (R²) a confirmé ces observations, indiquant que l’humidité et la température sont les principaux prédicteurs des variations d’O~3~.
+
+En conclusion, ce mini projet de datavisualision souligne l’importance des conditions météorologiques, en particulier de l’humidité, dans la modulation des niveaux d’ozone à Périgueux.
